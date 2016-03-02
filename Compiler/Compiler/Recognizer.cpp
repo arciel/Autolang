@@ -44,32 +44,32 @@ std::string lexemes[] {
 
 int line_num = 1;						// The line that we're currently reading.
 std::string lexeme;						// The current lexeme under inspection.
-int token;								// The token for the current lexeme.
+int token;							// The token for the current lexeme.
 int char_class;							// Indicates what kind of lexeme we may be reading.
 char character;							// The next character in the lexeme to be read in.
 std::fstream prog;						// Will open the source code to be compiled.
-std::string auto_name;					// The name of the current automata we're looking at.
-std::unordered_map<std::string, Automaton *> Automata; // The set of automata that the source file wants to create, against their names. 
+std::string auto_name;						// The name of the current automata we're looking at.
+std::unordered_map<std::string, Automaton *> Automata; 		// The set of automata that the source file wants to create, against their names. 
 
 /* </Global data.> */
 
 
 /* Function declarations.*/
 
-void lex();								// Generates the next lexeme and its token.
-void error(const std::string&);			// Error message.
-void token_check(int);					// Checks the value of the token.
+void lex();							// Generates the next lexeme and its token.
+void error(const std::string&);					// Error message.
+void token_check(int);						// Checks the value of the token.
 void getnonblank();						// Gets the next non-blank character from the source file.
-void getcharacter();					// Gets a single character from the source file.
-void parse_program();					// Parses the program in the source file.
-void parse_automaton_desc();			// Parses a single automaton's description header.
-void parse_description();				// Parses a single automaton's description.
-void parse_state_set();					// Parses a set of states.
-void parse_acceptingstate_set();		// Parses a set of states, with the additional info that they're accepting.
-void parse_char_set();					// Parses a set of characters.
-void parse_mappings();					// Parse the transition function mappings.
-void parse_command();					// Parses a single command.
-void stack_adjust(int);					// Just for formatting the testing output.
+void getcharacter();						// Gets a single character from the source file.
+void parse_program();						// Parses the program in the source file.
+void parse_automaton_desc();					// Parses a single automaton's description header.
+void parse_description();					// Parses a single automaton's description.
+void parse_state_set();						// Parses a set of states.
+void parse_acceptingstate_set();				// Parses a set of states, with the additional info that they're accepting.
+void parse_char_set();						// Parses a set of characters.
+void parse_mappings();						// Parse the transition function mappings.
+void parse_command();						// Parses a single command.
+void stack_adjust(int);						// Just for formatting the testing output.
 
 int main(int argc, char *argv[])
 {
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 	getcharacter();						// Get the first character to start the parsing.
-	lex();								// Generate the first lexeme and its token.
+	lex();							// Generate the first lexeme and its token.
 	parse_program();					// Start parsing the first program.
 	return 0;
 }
@@ -107,16 +107,16 @@ void parse_program()
 
 	stack_adjust(1);
 	std::cout << "<Automata_Descs>" << std::endl;
-	while (token == 1)						// While we're reading automata descriptions (tokens["automaton_desc"] == 1).
+	while (token == 1)					// While we're reading automata descriptions (tokens["automaton_desc"] == 1).
 	{
 		parse_automaton_desc();				// Parse one.
-		lex();								// And get the next.
+		lex();						// And get the next.
 	}
 	stack_adjust(1);
 	std::cout << "</Automata_Descs>" << std::endl;
 	lex();
 
-    { // Manual token check.
+        { // Manual token check.
 		if (token != EOF && token != 16)    	
 		{
 			error("EOF or commands expected, " + lexeme + " found.");
@@ -126,10 +126,10 @@ void parse_program()
 	/*
 	stack_adjust(1);
 	std::cout << "<Commands>" << std::endl;
-	while (token == 16)						// While we're reading commands (tokens[">>"] == 16).
+	while (token == 16)					// While we're reading commands (tokens[">>"] == 16).
 	{
-		parse_command();					// Parse one.
-		lex();								// And get the next.
+		parse_command();				// Parse one.
+		lex();						// And get the next.
 	}
 	stack_adjust(1);
 	std::cout << "</Commands>" << std::endl;
@@ -163,7 +163,7 @@ void parse_automaton_desc()
 			error("Unallowed identifier '" + lexeme + "'.");
 			exit(0);
 		}
-		if (Automata[lexeme])	// If an automaton with the given name already exists, then oops, error.
+		if (Automata[lexeme])		// If an automaton with the given name already exists, then oops, error.
 		{
 			error("An automaton with the given name '" + lexeme + "' already exits.");
 			exit(0);
@@ -180,7 +180,7 @@ void parse_automaton_desc()
 	lex();					// The next lexeme we see should be a "{" (token code 3).
 	token_check(3);
 
-	parse_description();	// Inside the braces, we have this automaton's description. We'll parse that.
+	parse_description();			// Inside the braces, we have this automaton's description. We'll parse that.
 
 	lex();					// The next lexeme we see should be a "}" (token code 4).
 	token_check(4);
@@ -195,54 +195,54 @@ void parse_description()
 	stack_adjust(3);
 	std::cout << "<description>" << std::endl;
 
-	lex();							// The next lexeme should be "sigma" (token code 2).
+	lex();						// The next lexeme should be "sigma" (token code 2).
 	token_check(2);
 
-	lex();							// The next lexeme should be "=" (token code 10).
+	lex();						// The next lexeme should be "=" (token code 10).
 	token_check(10);
 
 	parse_char_set();				// Now we should have a character set (the alphabet). Parse that.
 
-	lex();							// The next lexeme should be "states" (token code 13).
+	lex();						// The next lexeme should be "states" (token code 13).
 	token_check(13);
 
-	lex();							// The next lexeme should be "=" (token code 10).
+	lex();						// The next lexeme should be "=" (token code 10).
 	token_check(10);
 
 	parse_state_set();				// Now we should have a set of states. Parse that.
 
-	lex();							// The next lexeme should be "delta" (token code 8).
+	lex();						// The next lexeme should be "delta" (token code 8).
 	token_check(8);
 
-	lex();							// The next lexeme should be ":" (token code 20).
+	lex();						// The next lexeme should be ":" (token code 20).
 	token_check(20);
 
-	lex();							// The next lexeme should be "states" (token code 13).
+	lex();						// The next lexeme should be "states" (token code 13).
 	token_check(13);
 
-	lex();							// The next lexeme should be "x" (token code 14).
+	lex();						// The next lexeme should be "x" (token code 14).
 	token_check(14);
 
-	lex();							// The next lexeme should be "sigma" (token code 2).
+	lex();						// The next lexeme should be "sigma" (token code 2).
 	token_check(2);
 
-	lex();							// The next lexeme should be "-->" (token code 7).
+	lex();						// The next lexeme should be "-->" (token code 7).
 	token_check(7);
 
-	lex();							// The next lexeme should be "states" (token code 13).
+	lex();						// The next lexeme should be "states" (token code 13).
 	token_check(13);
 
 	parse_mappings();				// Between braces, we should have the transition function mappings. Parse those.
 
-	lex();							// The next lexeme should be "accepting" (token code 9).
+	lex();						// The next lexeme should be "accepting" (token code 9).
 	token_check(9);
 
-	lex();							// The next lexeme should be "=" (token code 10).
+	lex();						// The next lexeme should be "=" (token code 10).
 	token_check(10);
 
-	parse_acceptingstate_set(); 	// Now we should have a set of (accepting) states. Parse that.
+	parse_acceptingstate_set(); 			// Now we should have a set of (accepting) states. Parse that.
 
-	lex();							// The next lexeme should again be the name of the automaton.
+	lex();						// The next lexeme should again be the name of the automaton.
 
 	{ // Manual token check.
 		if (token != NULL || lexeme != auto_name)
@@ -337,13 +337,13 @@ void parse_state_set()
 
 	while (have_states)				// While there are states in the state set, parse them.
 	{
-		lex();						// The next lexeme should be a "(".
+		lex();					// The next lexeme should be a "(".
 		token_check(tokens["("]);
 
-		lex();						// The next lexeme should be a double quote.
+		lex();					// The next lexeme should be a double quote.
 		token_check(tokens["\""]);
 
-		lex();						// Now, we should have the label for the current state in lexeme.
+		lex();					// Now, we should have the label for the current state in lexeme.
 
 		{ // Manual error check.
 			if (Automata[auto_name]->has_state(lexeme))
@@ -401,13 +401,13 @@ void parse_acceptingstate_set()
 
 	while (have_states)				// While there are states in the acceptingstate set, parse them.
 	{
-		lex();						// The next lexeme should be a "(".
+		lex();					// The next lexeme should be a "(".
 		token_check(tokens["["]);
 
-		lex();						// The next lexeme should be a double quote.
+		lex();					// The next lexeme should be a double quote.
 		token_check(tokens["\""]);
 
-		lex();						// Now, we should have the label for the current state in lexeme.
+		lex();					// Now, we should have the label for the current state in lexeme.
 
 		{ // Manual error check.
 			if (!Automata[auto_name]->has_state(lexeme))
@@ -418,13 +418,13 @@ void parse_acceptingstate_set()
 		} // If we're past this point, it's okay to add this state to the automaton.
 		Automata[auto_name]->add_acceptingstate(lexeme);
 
-		lex();						// The next lexeme should be a double quote.
+		lex();					// The next lexeme should be a double quote.
 		token_check(tokens["\""]);
 
-		lex();						// The next lexeme should be a ")".
+		lex();					// The next lexeme should be a ")".
 		token_check(tokens["]"]);
 
-		lex();						// The next lexeme may or may not be ",".
+		lex();					// The next lexeme may or may not be ",".
 		// Manual token check.
 		if (token != tokens[","] && token != tokens["}"])
 		{
@@ -452,7 +452,7 @@ void parse_char_set()
 	stack_adjust(4);
 	std::cout << "<char_set>" << std::endl;
 
-	lex();							// The next lexeme should be "{" (token code 3).
+	lex();						// The next lexeme should be "{" (token code 3).
 	token_check(3);
 
 	lex();
@@ -466,7 +466,7 @@ void parse_char_set()
 
 	while (have_chars)				// While we have characters to add to the alphabet.
 	{
-		lex();						// Now, we should have a character of sigma in the lexeme.
+		lex();					// Now, we should have a character of sigma in the lexeme.
 		if (lexeme.size() != 1)
 		{
 			error("\"sigma\" can only contain characters (multiple characters found in an element)");
@@ -474,10 +474,10 @@ void parse_char_set()
 		}
 		Automata[auto_name]->add_char(lexeme.at(0));
 		
-		lex();						// The next lexeme should be "'".
+		lex();					// The next lexeme should be "'".
 		token_check(tokens["'"]);
 
-		lex();						// The next lexeme may or may not be ",".
+		lex();					// The next lexeme may or may not be ",".
 
 		// Manual token check.
 		if (token != tokens[","] && token != tokens["}"])
@@ -485,11 +485,11 @@ void parse_char_set()
 			error("\",\" or \"}\" expected, \"" + lexeme + "\" found.");
 			exit(0);
 		}
-		else if (token == tokens["}"])	// Done with the states.
+		else if (token == tokens["}"])		// Done with the states.
 		{
 			have_chars = false;
 		}
-		else if (token == tokens[","])	// Nope, more left.
+		else if (token == tokens[","])		// Nope, more left.
 		{
 			lex();
 			token_check(tokens["'"]);	// The next lexeme should be "'".
@@ -506,7 +506,7 @@ void parse_mappings()
 	stack_adjust(4);
 	std::cout << "<mappings>" << std::endl;
 
-	lex();								// The next lexeme should be "{".
+	lex();						// The next lexeme should be "{".
 	token_check(tokens["{"]);
 
 	lex();
@@ -514,10 +514,10 @@ void parse_mappings()
 
 	while (have_mappings)				// While we have mappings, parse them.
 	{
-		lex();							// The next lexeme should be "\"".
+		lex();					// The next lexeme should be "\"".
 		token_check(tokens["\""]);
 
-		lex();							// We should now have the label of the starting state in lexeme.
+		lex();					// We should now have the label of the starting state in lexeme.
 
 		{ // Manual error check.
 			if (!Automata[auto_name]->has_state(lexeme))
@@ -610,13 +610,13 @@ void lex()
 			lexeme += character;
 			getcharacter();
 		}
-		token = tokens[lexeme];			// The token will be NULL if it is not a keyword.
+		token = tokens[lexeme];				// The token will be NULL if it is not a keyword.
 		break;
 	case SYMBOL:
 		/* Parsing other things. */
 		lexeme += character;	
 		if (character == '-' || character == '>') 
-		{								// All symbolic lexemes are one-character long, except "-->" and ">>".
+		{						// All symbolic lexemes are one-character long, except "-->" and ">>".
 			getcharacter();
 			while (char_class == SYMBOL)
 			{
@@ -637,8 +637,8 @@ void lex()
 // Gets the next non-blank character from the source file.
 void getnonblank()
 {
-	while (isspace(character))								// As long as we're reading whitespace ...
-		getcharacter();										// ... ignore and get the next character.
+	while (isspace(character))				// As long as we're reading whitespace ...
+		getcharacter();					// ... ignore and get the next character.
 }
 
 // Gets a single character from the source file.
@@ -649,7 +649,7 @@ void getcharacter()
 		char_class = EOF;
 		return;
 	}
-	prog.get(character);									// Every alpha-numeric symbol is treated as a character in AL.
+	prog.get(character);					// Every alpha-numeric symbol is treated as a character in AL.
 
 	if (isalnum(character) || character == '_')
 		char_class = CHAR;
