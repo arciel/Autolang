@@ -1,6 +1,6 @@
 /* Implementation for operators in the class 'Transition' */
 
-#include "Delta.h"
+#include "../Header Files/Delta.h"
 
 State* Transition::operator[](state_char_pair pair)
 {

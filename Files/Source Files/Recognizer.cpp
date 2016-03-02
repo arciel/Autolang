@@ -9,7 +9,7 @@
 #include <fstream>
 #include <cctype>
 #include <process.h>
-#include "Automaton.h"
+#include "../Header Files/Automaton.h"
 
 #define SYMBOL 0
 #define CHAR 1

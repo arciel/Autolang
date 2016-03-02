@@ -1,6 +1,6 @@
 /* Implementations for the methods in the class 'Automaton'. */
 
-#include "Automaton.h"
+#include "../Header Files/Automaton.h"
 
 void Automaton::next(char c) 
 {	
