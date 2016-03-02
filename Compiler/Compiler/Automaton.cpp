@@ -3,8 +3,7 @@
 #include "Automaton.h"
 
 void Automaton::next(char c) 
-{
-	
+{	
 	current = delta[{current, c}];
 }
 
@@ -17,16 +16,40 @@ void Automaton::query(std::string &s)
 bool Automaton::accepts(std::string &s)
 {
 	query(s);
-	return (accepting.count(s) == 1);
+	return (accepting[s] != nullptr);
 }
 
-void Automaton::addstate(State *st)
+void Automaton::add_state(std::string &label)
 {
-	states[st->getlabel()] = st;
+	states[label] = new State(label);
 }
 
-void Automaton::addtransition(std::string& s1, char c, std::string& s2)
+void Automaton::add_transition(std::string& s1, char c, std::string& s2)
 {
 	delta.addtransition({ states[s1], c }, states[s2]);
 }
 
+void Automaton::set_initial(std::string &label)
+{
+	initial = states[label];
+}
+
+bool Automaton::has_state(std::string &label)
+{
+	return (states[label] != nullptr);
+}
+
+void Automaton::add_acceptingstate(std::string &label)
+{
+	accepting[label] = states[label];
+}
+
+void Automaton::add_char(char &c)
+{
+	sigma += c;
+}
+
+bool Automaton::has_char(char &c)
+{
+	return (sigma.find(c) != std::string::npos);
+}
