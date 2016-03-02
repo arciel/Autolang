@@ -4,17 +4,11 @@ Rule2: <Automata_Descs> --> <Automaton_Desc> | <Automaton_Desc> <Automata_Descs>
 
 Rule3: <Automaton_Desc> --> automaton_desc (<term>[1]) { <description> }
 
-Rule4: <description> --> sigma = <set>[1]; 
- 	                 states = <set>[2]; 
- 		         delta : states x sigma --> states {<mappings>}
- 		         accepting = <set>[3];
- 		         <term>[2] = (sigma, states, <state_elem>, delta, accepting);
-
-	Predicate4:	<set>[1].contains_only_chars = True &&
-			<set>[2].contains_only_states = True &&
-			<set>[3].is_subset_of(<set>[2]) = True &&
-			<set>[2].contains(<state_elem>) = True &&
-			<term>[1].string == <term>[2].string = True	    
+Rule4: <description> --> sigma = <set>[1]
+ 	                 states = <set>[2]
+ 		         delta : states x sigma --> states <map>
+ 		         accepting = <acceptingset>[3]
+ 		         <term>[2] = (sigma, states, states[<string>], delta, accepting)    
 
 Rule5: <set> --> { <char_list> } | { <state_list> }
 
@@ -26,18 +20,24 @@ Rule8: <character> --> a | b ... | z | A | B ... | Z | 0 | 1 | ... 9
 
 Rule9: <state_list> --> <state_elem> | <state_elem>, <state_list>
 
-Rule11: <state_elem> --> state(string) | states[string]
+Rule11: <state_elem> --> state(string)
 
 Rule10: <string> --> "<term>"
 
 Rule12: <term> --> <character> | <character><term>
 
-	Predicate12: <keywords>.contains(<term>) = False
-
 Rule13: <keywords> --> sigma | states | state | delta | accepting
 
-Rule14: <mappings> --> <mapping>; | <mapping>; <mappings>
+Rule14: <map> --> { <mappings> }
 
-Rule15: <mapping> --> (states[<string>], sigma[<char>]) --> states[<string>]
+Rule15: <mappings> --> <mapping> | <mapping> <mappings> 
 
-	          
+Rule15: <mapping> --> (<string>, <char>) --> <string>
+
+Rule16: <Commands> --> <command> | <command> <Commands>
+
+Rule17: <command> --> >> <term>.accepts(<string>)
+
+Rule18: <acceptingset> --> { <acceptingstates_list> }
+
+Rule19: <acceptingstates_list> --> states[<string>] | states[<string>] <acceptingstates_list>
