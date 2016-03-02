@@ -522,7 +522,7 @@ void parse_mappings()
 		{ // Manual error check.
 			if (!Automata[auto_name]->has_state(lexeme))
 			{
-				error("There doesn't exists a state labelled \"" + lexeme + "\" and hence a mapping from it cannot be created.");
+				error("There doesn't exist a state labelled \"" + lexeme + "\" and hence a mapping from it cannot be created.");
 				exit(0);
 			}
 		}
@@ -545,7 +545,7 @@ void parse_mappings()
 			}
 			if (!Automata[auto_name]->has_char(lexeme.at(0)))
 			{
-				error("There doesn't exists a character '" + lexeme + "' and hence a mapping under it cannot be created.");
+				error("There doesn't exist a character '" + lexeme + "' and hence a mapping under it cannot be created.");
 				exit(0);
 			}
 		}
@@ -567,7 +567,7 @@ void parse_mappings()
 		{ // Manual error check.
 			if (!Automata[auto_name]->has_state(lexeme))
 			{
-				error("There doesn't exists a state labelled \"" + lexeme + "\" and hence a mapping to it cannot be created.");
+				error("There doesn't exist a state labelled \"" + lexeme + "\" and hence a mapping to it cannot be created.");
 				exit(0);
 			}
 		}
