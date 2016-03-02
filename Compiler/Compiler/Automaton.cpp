@@ -4,19 +4,20 @@
 
 void Automaton::next(char c) 
 {
+	
 	current = delta[{current, c}];
 }
 
-void Automaton::query(const std::string &s)
+void Automaton::query(std::string &s)
 {
 	current = initial;
 	for (auto &c : s) next(c);
 }
 
-bool Automaton::accepts(const std::string &s)
+bool Automaton::accepts(std::string &s)
 {
 	query(s);
-	return accepting.count[current->getlabel()];		// Returns 1 if present (True), 0 if absent (False).
+	return (accepting.count(s) == 1);
 }
 
 void Automaton::addstate(State *st)
@@ -24,8 +25,8 @@ void Automaton::addstate(State *st)
 	states[st->getlabel()] = st;
 }
 
-void Automaton::addtransition(const std::string& s1, char c, const std::string& s2)
+void Automaton::addtransition(std::string& s1, char c, std::string& s2)
 {
-	delta[{states[s1], c}] = states[s2];
+	delta.addtransition({ states[s1], c }, states[s2]);
 }
 

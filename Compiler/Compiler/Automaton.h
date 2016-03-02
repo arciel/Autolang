@@ -15,13 +15,13 @@ class Automaton
 	States accepting;					// The set of accepting states.
 	State *current;						// The current state (to be set to 'initial' before each query).
 	void next(char);					// The transition function.
-	void query(const std::string&);		// The extended transition function.
+	void query(std::string&);			// The extended transition function.
 public:
 	Automaton()  {}
     ~Automaton() {}
-	bool accepts(const std::string&);
+	bool accepts(std::string&);
 	void addstate(State *);				
-	void addtransition(const std::string&, char, const std::string&);
+	void addtransition(std::string&, char, std::string&);
 
 };
 

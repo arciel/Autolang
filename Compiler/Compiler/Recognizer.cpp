@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <process.h>
 #include "Automaton.h"
 
 // The list of keywords in the Automata Language.
@@ -26,6 +27,8 @@ std::string lexeme;		// The current lexeme under inspection.
 int token;				// The token for the current lexeme.
 
 void lex();
+void error(const std::string&);
+void test();
 
 void getnonblank();		//
 
@@ -33,5 +36,15 @@ int main(int argc, char *argv[])
 {
 	std::fstream prog;	
 	prog.open((argc > 1) ? argv[1] : "program.al");		// Source code to be compiled.
-	
+	if (!prog)
+	{
+		test();
+		error("Cannot open file.");
+		return 0;
+	}
+}
+
+void error(const std::string& message)
+{
+	std::cout << "ERROR: " << message << std::endl;
 }
