@@ -2,5 +2,5 @@ Compiler/Compiler/Debug
 Compiler/Compiler.sdf
 Compiler/Compiler.sln
 Compiler/Debug
-Compiler/Compiler.vcxproj
-Compiler/Compiler.vcxproj.filters
+Compiler/Compiler/Compiler.vcxproj
+Compiler/Compiler/Compiler.vcxproj.filters
