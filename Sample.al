@@ -29,6 +29,6 @@ automaton_desc (M) {
 
 # Sample output
 
->> True
+# >> True
 
->> False
+# >> False
