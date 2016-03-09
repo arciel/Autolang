@@ -8,16 +8,15 @@
 
 class Automaton
 {
-	States states;						// The set of states, stored against their labels.
-	std::string sigma;					// The character-set, or the alphabet.
-	Transition delta;					// The map representing the transition function.
-	State *initial;						// The pointer to the initial state.
-	States accepting;					// The set of accepting states.
-	State *current;						// The current state (to be set to 'initial' before each query).
-	void next(char);					// The transition function.
-	void query(std::string &);			// The extended transition function.
+	States states;						  // The set of states, stored against their labels.
+	std::string sigma;					  // The character-set, or the alphabet.
+	Transition delta;					  // The map representing the transition function.
+	State *initial;						  // The pointer to the initial state.
+	States accepting;					  // The set of accepting states.
+	void next(State *&, char);			  // The transition function.
+	void query(State *&, std::string &);  // The extended transition function.
 public:
-	Automaton()  { sigma = ""; }
+	Automaton()  { sigma = ""; initial = nullptr; }
     ~Automaton() {}
 	bool accepts(std::string &);
 	void add_state(std::string &);

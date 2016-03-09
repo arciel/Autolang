@@ -1,22 +1,23 @@
 /* Implementations for the methods in the class 'Automaton'. */
 
 #include "../Header Files/Automaton.h"
+#include <iostream>
 
-void Automaton::next(char c) 
-{	
+void Automaton::next(State *&current, char c) 
+{
 	current = delta[{current, c}];
 }
 
-void Automaton::query(std::string &s)
+void Automaton::query(State *&current, std::string &s)
 {
-	current = initial;
-	for (auto &c : s) next(c);
+	for (auto &c : s) next(current, c);
 }
 
 bool Automaton::accepts(std::string &s)
 {
-	query(s);
-	return (accepting[s] != nullptr);
+	State *current = initial;
+	query(current, s);
+	return (accepting[current->getlabel()] != nullptr);
 }
 
 void Automaton::add_state(std::string &label)
