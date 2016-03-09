@@ -48,7 +48,7 @@ The result of interpreting this code will be
 
 where 1 represents True, and 0 represents False. 
 
-Comments are preceded by a '#', and can span a single line.
+Comments are preceded by a '#', and can span a single line (though they're not supported as of this commit).
 
 The Automata Language will eventually support if statements, for loops, functions not bound to automata, and sets, amongst other things. More features to come as I learn more!
 

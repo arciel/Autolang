@@ -1,5 +1,3 @@
-# Sample program
-
 automaton_desc (M) {
 
 	sigma = {'1', '2'}
@@ -26,9 +24,3 @@ automaton_desc (M) {
 >> M.accepts("1212")
 
 >> M.accepts("2222")
-
-# Sample output
-
-# >> True
-
-# >> False
