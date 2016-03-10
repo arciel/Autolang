@@ -26,7 +26,7 @@ automata_desc (M) {
 
 	accepting = { states["Label2"] }
 
-	M = (sigma, states, states["Label"], delta, accepting)
+	M = (sigma, states, states["Label2"], delta, accepting)
 }
 ```
 
