@@ -7,7 +7,7 @@ The Automata Language is a small programming language that lets you describe aut
 For instance, an automaton *M* can be described with the following syntax
 
 ```perl
-automata_desc (M) {
+automaton_desc (M) {
 	
 	sigma = { '1', '2' }
 	
