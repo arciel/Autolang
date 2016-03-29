@@ -694,16 +694,30 @@ void getcharacter()
 		char_class = EOF;
 		return;
 	}
-	prog.get(character);					// Every alpha-numeric symbol is treated as a character in AL.
+	prog.get(character);                              // Every alpha-numeric symbol is treated as a character in AL.
+
+	if (character == '#')                             // Comment found.
+	{
+		while (character != '\n' && !prog.eof())      // Skip comment.
+			prog.get(character);
+
+		if (prog.eof())
+		{
+			char_class = EOF;
+			return;
+		}
+	}
 
 	if (isalnum(character) || character == '_')
 		char_class = CHAR;
+
 	else if (isspace(character)) 
 	{
 		char_class = SPACE;
 		if (character == '\n')
 			line_num++;
 	}
+
 	else
 		char_class = SYMBOL;
 }
