@@ -1,12 +1,14 @@
-automaton_desc (M) {
+# Sample program.
 
-	sigma = {'1', '2'}
+automaton_desc (M) {				# Define automata M.
 
-	states = {state("Label1"), state("Label2")}
+	sigma = {'1', '2'}				# Alphabet.
 
-	delta : states x sigma --> states {
+	states = {state("Label1"), state("Label2")}	# States by labels.
+
+	delta : states x sigma --> states {		# Transition function.
 	
-		("Label1", '1') --> "Label2"	
+		("Label1", '1') --> "Label2"
 		
 		("Label1", '2') --> "Label1"
 
@@ -16,11 +18,17 @@ automaton_desc (M) {
 		
 	}
 
-	accepting = {states["Label2"]}
+	accepting = {states["Label2"]}			# Accepting states.
 
 	M = (sigma, states, states["Label1"], delta, accepting)
 }
 
->> M.accepts("1212")
+>> M.accepts("1212")				# Commands.
 
 >> M.accepts("2222")
+
+# Sample output.
+
+# >> 1
+
+# >> 0
