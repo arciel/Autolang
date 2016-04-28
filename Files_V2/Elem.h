@@ -7,10 +7,10 @@ using std::string;
 
 enum Type { AUTO = 1, CHAR, INT, LOGICAL, MAP, SET, STRING, TUPLE };    // Enum for the data types.
 
-class Elem {	                     // An element can only actively represent one of data fields at a time.
+class Elem {	                              // An element can only actively represent one of data fields at a time.
 public:
-	Type type;						 // Type of data stored in this element.
-	Elem(Type type)                  // Generic type-setting constructor.
+	Type type;			      // Type of data stored in this element.
+	Elem(Type type)                       // Generic type-setting constructor.
 	{
 		this->type = type;
 	}
@@ -18,7 +18,7 @@ public:
 	{
 		return (this->type != elem.type) ? false : (*this == elem); // Here's where the virtuality will help.
 	}
-	virtual string to_string() = 0;  // Virtual to_string method for display.
+	virtual string to_string() = 0;      // Virtual to_string method for display.
 };
 
 #endif
