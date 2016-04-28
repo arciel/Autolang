@@ -11,7 +11,10 @@
 		| <if> 								# COVERED
 		| <loop>							# COVERED
 
-<assignment> --> <identifier> = <elem>
+<assignment> --> <identifier> = <expr>
+
+<expr> -->   (<expr>) 
+           | <elem>
 
 <declaration> -->   string <identifier>[1] 					# COVERED
 		  | set <identifier>[2] 					# COVERED
