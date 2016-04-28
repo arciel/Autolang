@@ -34,18 +34,27 @@
 		  <identifier>[7].type = automaton, 
 		  <identifier>[8].type = map
 
-<initialization> -->      string <identifier>[1] = <string>     						 # COVERED
-			| set <identifier>[2] = <set>								 # COVERED
-			| char <identifier>[3] = <char> 							 # COVERED
-			| int <identifier>[4] = <int>								 # COVERED
-			| tuple <identifier>[5] = <tuple>							 # COVERED
-			| logical <identifier>[6] = <logical>							 # COVERED
-			| auto <identifier>[7] = (<set>, <set>, <access>, <map>, <set>[4])	  		 # COVERED  				
+<initialization> -->      string <identifier>[1] = <expr>[1]	     						 # COVERED
+			| set <identifier>[2] = <expr>[2]							 # COVERED
+			| char <identifier>[3] = <expr>[3] 							 # COVERED
+			| int <identifier>[4] = <expr>[4]							 # COVERED
+			| tuple <identifier>[5] = <expr>[5]							 # COVERED
+			| logical <identifier>[6] = <expr>[6]							 # COVERED
+			| auto <identifier>[7] = (<expr>[7], <expr>[8], <expr>[9], <map>, <expr>[10]) 		 # COVERED  				
 			| map <identifier>[8] : <map>								 # COVERED
 
+	 P:		<expr>[1].type = string, <expr>[2].type  = set
+			<expr>[3].type = char,   <expr>[4].type  = int
+			<expr>[5].type = tuple,  <expr>[6].type  = logical
+			<expr>[7].type = set,    <expr>[8].type  = set
+			<expr>[9].type = string, <expr>[10].type = set 
+
+			<expr>[7] is a homoset of chars, and <expr>[8] is a homoset of strings. 
+			<expr>[10] is a subset of <expr>[8].
+			
 	AF:		<identifier>[7].type = automaton
 			<identifier>[8].type = map
-			# Other attribute evaluations are obvious.
+			# Other attribute evaluations are obvious.	
 
 
 <elem_list> -->  <elem> | <elem>, <elem_list>
