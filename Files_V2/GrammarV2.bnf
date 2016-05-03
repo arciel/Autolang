@@ -1,3 +1,6 @@
+# NOTE - Anywhere in this grammar, a '=' can be replaced with ':=', which signifies a deep_copy instead of a simple assignment.
+# Anywhere except in attribute functions and predicates.
+
 <Program> --> <statements>
 
 <statements> -->   <statement> 
@@ -11,7 +14,7 @@
 		| <if> 								# COVERED
 		| <loop>							# COVERED
 
-<assignment> --> <identifier> = <expr>
+<assignment> -->   <identifier> = <expr>
 
 <expr> -->   (<expr>) 
            | <elem>
