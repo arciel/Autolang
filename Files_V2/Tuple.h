@@ -12,33 +12,14 @@ class Tuple : public Elem
 public:
 	vector<Elem *> *elems;
 	
-	Tuple() : Elem(TUPLE)                          // Default constructor, empty tuple.
-	{
-		elems = new vector < Elem * >;
-	}
-
-	Tuple(vector<Elem *> *elems) : Elem(TUPLE)     // Tuple-ize an existing vector of element_pointers.
-	{
-		this->elems = elems;
-	}
-
-	int size()
-	{
-		return elems->size();
-	}
-
-	string to_string()
-	{
-		string representation{ "( " };
-		int i{ 0 };
-		for (auto &elem_p : *elems)
-		{
-			representation += elem_p->to_string();
-			if (i != elems->size() - 1)
-				representation += ", ";
-		}
-		return representation + " )";
-	}
+	Tuple();				// Default constructor, empty tuple.
+	Tuple(vector<Elem *> *);		// Tuple-ize an existing vector of element_pointers.
+	Elem* deep_copy();			// Returns a tuple which is a deep_copy of this tuple.
+	bool has(Elem &);			// Checks if a given element is present in the tuple.
+	const Elem &operator[](int) const;      // R-value access.
+	bool operator==(Tuple &);		// Checks two tuples for equality.
+	int size();				// Returns the size (or 'dimension') of this tuple.
+	string to_string();			// Returns a string representation of the tuple.
 };
 
 #endif
