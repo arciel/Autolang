@@ -18,6 +18,8 @@ public:
 	Set(vector<Elem *> *);                     // It is possible to initialize a set with an existing vector (well, a pointer to it).
 	int cardinality();                         // Returns the cardinality of the set.	
 	Set cartesian_product(Set &);              // Returns the cartesian product of this set and the other set.
+	Elem* deep_copy();			   // Returns a new set which is a deep_copy of this set.
+	Set exclusion(Set &);                      // Returns a set containing elements of this, minus those of the argument.
 	bool has(Elem &);                          // Looks for an element in the set.
 	Set intersection(Set &);                   // Intersection with a second set.
 	Set subset(int, int);                      // Returns a subset of the set containing elements in [start, end).

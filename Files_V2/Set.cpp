@@ -15,17 +15,35 @@ Set::Set(vector<Elem *> *elems): Elem(SET)     // It is possible to initialize a
 int Set::cardinality()                         // Returns the cardinality of the set.
 {
         return elems->size(); 
-} 
+}
 
 Set Set::cartesian_product(Set &other)         // Returns the cartesian product of this set and the other set.
 {
-	Set cart;                                     // Make an empty set.
+	Set product;                                  // Make an empty set.
 	for (auto &elem_p1 : *elems)                  // For every element_pointer in the vector of element_pointers in this set ...
 		for (auto &elem_p2 : *(other.elems))  // ... taken with every element pointer in the vector of element_pointers in the other ...
-			cart.elems->push_back(                      // ... <convoluted_code> Push into the cartesian_product (cart) ...
+			product.elems->push_back(                    // ... <convoluted_code> Push into the cartesian_product (cart) ...
 			new Tuple(                                   // ... a pointer to a Tuple object, that is ... 
 			new vector < Elem * >{ elem_p1, elem_p2 })   // ... constructed using a vector initialized with elem_p1 and elem_p2.                                                 
 			);                                           // </convoluted_code>
+	return product;
+}
+
+Elem* Set::deep_copy()                         // Returns a new set which is a deep-copy of this set.
+{
+	Set *clone = new Set;					// Make an empty clone set.
+	for (auto &elem_p1 : *elems)				// For every element_pointer in the vector of element_pointers in this set ...
+		clone->elems->push_back(elem_p1->deep_copy());  // ... push into the clone, a deep_copy of the object pointed to by the pointer. 
+	return clone;						// Return a pointer to the clone.
+}
+
+Set Set::exclusion(Set &exclude)	       // Returns a set containing the elements of this set, minus those of the argument. 
+{
+	Set exclusive;						// Make an empty set.
+	for (auto &elem_p1 : *elems)				// For every (any) element_pointer in the vector of element_pointers in this ...  
+		if (!exclude.has(*elem_p1))			// ... if the element it points to is not present in the set to be excluded ...
+			exclusive.elems->push_back(elem_p1);    // ... then add a pointer to that element in the exclusive set.
+	return exclusive;
 }
 
 bool Set::has(Elem &elem)                      // Looks for an element in the set.
