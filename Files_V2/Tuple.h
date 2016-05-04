@@ -11,7 +11,6 @@ class Tuple : public Elem
 {
 public:
 	vector<Elem *> *elems;
-	
 	Tuple();				// Default constructor, empty tuple.
 	Tuple(vector<Elem *> *);		// Tuple-ize an existing vector of element_pointers.
 	Elem* deep_copy();			// Returns a tuple which is a deep_copy of this tuple.
