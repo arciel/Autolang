@@ -1,11 +1,13 @@
 #ifndef ELEM_H
 #define ELEM_H
 
+#include <string>
+
 using std::string;
 
 /* The definition of a generic Elem(ent) in Autolang. */
 
-enum Type { AUTO = 1, CHAR, INT, LOGICAL, MAP, SET, STRING, TUPLE };    // Enum for the data types.
+enum Type { NULLTYPE, AUTO, CHAR, INT, LOGICAL, MAP, SET, STRING, TUPLE };    // Enum for the data types.
 
 class Elem {	                              // An element can only actively represent one of data fields at a time.
 public:
