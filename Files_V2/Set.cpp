@@ -54,6 +54,25 @@ bool Set::has(Elem &elem)                      // Looks for an element in the se
 	return false;                          // Else return false.
 }
 
+bool Set::homoset()			       // Returns true if every element of this set has the same type.
+{
+	if (this->cardinality() == 0)	       // Vacuously true.
+		return true;	
+
+	Type candidate_homotype = (*(this->elems))[0]->type; // The type of the first element in the set.
+	for (auto &elem_p1 : *elems)			     // For every (any) element_pointer in the vector of element_pointers in this set...
+		if (candidate_homotype != elem_p1->type)     // ... if the type of the object pointed to, is not equal to the candidate ...
+			return false;			     // ... return false.
+	return true;					     // Else return true.
+}
+
+Type Set::homotype()
+{
+	if (this->cardinality() == 0)
+		return NULLTYPE;
+	else return (*(this->elems))[0]->type;
+}
+
 Set Set::intersection(Set &other)              // Intersection with a second set.
 {
 	Set intersect;                                             // Make an initially empty set since we don't know what we may have to add.
