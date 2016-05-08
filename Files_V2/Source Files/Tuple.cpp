@@ -1,4 +1,4 @@
-#include "Tuple.h"
+#include "../Header Files/Tuple.h"
 
 /* Implementations for the methods in the class Tuple. */
 
@@ -9,7 +9,7 @@ Tuple::Tuple() : Elem(TUPLE)				// Default constructor, empty tuple.
 
 Tuple::Tuple(vector<Elem *> *elems) : Elem(TUPLE)	// Tuple-ize an existing vector of element_pointers.
 {
-	this->elems = elems;
+	this->elems = new vector<Elem *>(*elems);
 }
 
 Elem* Tuple::deep_copy()				// Returns a tuple which is a deep_copy of this tuple.
@@ -25,12 +25,14 @@ const Elem & Tuple::operator[](int index) const         // R-value access.
 	return *(*elems)[index];                        // Return a reference to an element pointed to by the element_pointer at index. 
 }
 
-bool Tuple::operator==(Tuple &other)			// Checks two tuples for equality.	
+bool Tuple::operator==(Elem &other_tuple)		// Checks two tuples for equality.	
 {
-	if (size() != other.size())				// If the sizes are different ... 
+	if (other_tuple.type != TUPLE) return false;
+	Tuple *other = (Tuple *)&other_tuple;
+	if (size() != other->size())				// If the sizes are different ... 
 		return false;					// ... then they are obviously not equal.
 	for (int i{ 0 }; i < size(); i++)			// So the sizes of the tuples are the same. Now if at any index i ...
-		if (!(*(*elems)[i] == *(*other.elems)[i]))	// ... the elements in the two tuples are different, then ...
+		if (!(*(*elems)[i] == *(*other->elems)[i]))	// ... the elements in the two tuples are different, then ...
 			return false;				// ... then the tuples are not equal.
 	return true;						// Otherwise they are.
 }
@@ -42,13 +44,21 @@ int Tuple::size()					// Returns the size (or 'dimension') of this tuple.
 
 string Tuple::to_string()				// Returns a string representation of the tuple.
 {
-	string representation{ "( " };
+	string representation{ "(" };
 	int i{ 0 };
 	for (auto &elem_p : *elems)
 	{
 		representation += elem_p->to_string();  // Recursive, awesome representations. ;)
 		if (i != elems->size() - 1)
 			representation += ", ";
+		i++;
 	}
-	return representation + " )";
+	return representation + ")";
+}
+
+Tuple::~Tuple()				  // Destructor.
+{
+	for (auto &elem_p1 : *elems)	  // For every element_pointer in the vector of element_pointers in this tuple ...
+		delete elem_p1;		  // ... delete the object pointed to by that pointer.
+	delete elems;			  // And when done, delete the vector too.
 }

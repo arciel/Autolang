@@ -18,7 +18,7 @@ public:
 	}
 	virtual bool operator==(Elem &elem)   // The equality comparison between two elements.
 	{
-		return (this->type != elem.type) ? false : (*this == elem); // Here's where the virtuality will help.
+		return (this->type != elem.type) ? false : this->operator==(elem);
 	}
 	virtual string to_string() = 0;       // Virtual to_string method for display.
 	virtual Elem* deep_copy() = 0;        // Virtual deep_copy method for making a 'deep clone' of the object.

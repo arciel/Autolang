@@ -1,4 +1,7 @@
-#include "Logical.h"
+#include "../Header Files/Logical.h"
+#include <iostream>
+using std::cout;
+using std::endl;
 
 /* Implementations for the methods in the class Logical. */
 
@@ -36,6 +39,13 @@ Logical Logical::operator&&(Logical &x)		// Overloaded logical and.
 Logical Logical::operator||(Logical &x)		// Overloaded logical or.
 {
 	return Logical(this->elem || x.elem);	// Return a logical object constructed with the truth value of (this->elem || x.elem).
+}
+
+bool Logical::operator==(Elem &x)		// Overloaded == operator.
+{
+	if (x.type != LOGICAL) return false;	// Check for types first and foremost.
+	Logical *_x = (Logical *)&x;		
+	return (this->elem == _x->elem);	// Then check for value.
 }
 
 string Logical::to_string()			// Virtual to_string method for display.

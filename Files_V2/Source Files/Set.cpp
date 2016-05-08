@@ -1,4 +1,4 @@
-#include "Set.h"
+#include "../Header Files/Set.h"
 
 /* Implementations for methods in the class Set. */
 
@@ -9,7 +9,7 @@ Set::Set() : Elem(SET)                     // Default constructor.
 
 Set::Set(vector<Elem *> *elems): Elem(SET)     // It is possible to initialize a set with an existing vector.
 {
-	this->elems = elems;                   // Just make the set's vector_pointer point to that existing vector.
+	(this->elems) = new vector<Elem *>(*elems);   // Just make the set's vector_pointer point to that existing vector.
 }
 
 int Set::cardinality()                         // Returns the cardinality of the set.
@@ -66,11 +66,11 @@ bool Set::homoset()			       // Returns true if every element of this set has th
 	return true;					     // Else return true.
 }
 
-Type Set::homotype()
+Type Set::homotype()			       // Returns the type of every element in this set (if it is a homoset).
 {
-	if (this->cardinality() == 0)
-		return NULLTYPE;
-	else return (*(this->elems))[0]->type;
+	if (this->cardinality() == 0)			// If the cardinality is zero ...
+		return NULLTYPE;			// ... return NULLTYPE.
+	else return (*(this->elems))[0]->type;		// Otherwise return the first element's type.
 }
 
 Set Set::intersection(Set &other)              // Intersection with a second set.
@@ -92,11 +92,13 @@ Elem *& Set::operator[](int index)               // L-value access.
 	return(*elems)[index];                   // Return an element_pointer at index.     
 }
 
-bool Set::operator==(Set &other)                 // Checks two sets for equality.
+bool Set::operator==(Elem &other_set)                 // Checks two sets for equality.
 {
-	if (cardinality() != other.cardinality())    // If the cardinalities are different ... 
+	if (other_set.type != SET) return false;
+	Set *other = (Set *)&other_set;
+	if (cardinality() != other->cardinality())   // If the cardinalities are different ... 
 		return false;                        // ... then they are obviously not equal.
-	return this->subset_of(other);               // But if they are the same, then if either is a subset of the other, they indeed are equal.
+	return this->subset_of(*other);              // But if they are the same, then if either is a subset of the other, they indeed are equal.
 }
 
 Set Set::subset(int start, int end)              // Returns a subset of the set containing elements in [start, end).
@@ -117,22 +119,30 @@ bool Set::subset_of(Set &candidate_superset)     // Checks if this set is a subs
 
 string Set::to_string()                          // Returns a string representation of the set.
 {
-	string representation{ "{ " };
+	string representation{ "{" };
 	int i{ 0 };
 	for (auto &elem_p : *elems)
 	{
 		representation += elem_p->to_string();   // Recursive, awesome representations. ;)
 		if (i != elems->size() - 1)
 			representation += ", ";
+		i++;
 	}
-	return representation + " }";
+	return representation + "}";
 }
 
 Set Set::_union(Set &other)                // Union with a second set.
 {
 	Set unified(this->elems);
-	for (auto &elem_p : *(other.elems))        // For every other element_pointer in the other set's vector ...
-		if (!this->has(*elem_p))           // ... if the object pointed to by it is not already present in this set ...
-			elems->push_back(elem_p);  // ... add a pointer to it to this set as well.
+	for (auto &elem_p : *(other.elems)) 		   // For every other element_pointer in the other set's vector ...
+		if (!unified.has(*elem_p)) 		   // ... if the object pointed to by it is not already present in this set ...
+			unified.elems->push_back(elem_p);  // ... add a pointer to it to this set as well.
 	return unified;
+}
+
+Set::~Set()				  // Destructor.
+{
+	//for (auto &elem_p1 : *elems)	  // For every element_pointer in the vector of element_pointers in this set ...
+	//	delete elem_p1;		  // ... delete the object pointed to by that pointer.
+	//delete elems;			  // And when done, delete the vector too.
 }

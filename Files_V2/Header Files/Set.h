@@ -27,9 +27,10 @@ public:
 	bool subset_of(Set &);                     // Checks if this set is a subset of the candidate_superset.
 	const Elem &operator[](int) const;         // R-value access.
 	Elem *&operator[](int);                    // L-value access.
-	bool operator==(Set &);                    // Checks two sets for equality.
+	bool operator==(Elem &);                   // Checks two sets for equality.
 	string to_string();                        // Returns a string representation of the set.
 	Set _union(Set &);                         // Union with a second set.
+	~Set();					   // Destructor.
 };
 
 #endif
