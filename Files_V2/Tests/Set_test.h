@@ -1,3 +1,6 @@
+#ifndef SET_TEST_H
+#define SET_TEST_H
+
 #include <iostream>
 #include "../Header Files/Set.h"
 #include "../Header Files/Char.h"
@@ -171,3 +174,5 @@ namespace Set_test
 		exclusion(A, B);
 	}
 }
+
+#endif
