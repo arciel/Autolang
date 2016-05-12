@@ -1,9 +1,9 @@
 /* Being used to conduct tests right now. */
 
-#include "../Tests/Set_test.h"
+#include "../Tests/Tuple_test.h"
 
 int main() 
 {	
-	Set_test::test_all();
+	Tuple_test::test_all();
 	return 0;
 }
