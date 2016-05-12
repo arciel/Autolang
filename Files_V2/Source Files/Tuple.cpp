@@ -12,6 +12,14 @@ Tuple::Tuple(vector<Elem *> *elems) : Elem(TUPLE)	// Tuple-ize an existing vecto
 	this->elems = new vector<Elem *>(*elems);
 }
 
+bool Tuple::has(Elem &elem)				// Checks if a certain element is present in the tuple.
+{	
+	for (auto &elem_p1 : *elems)				// For every (any) element_pointer in the vector of element_pointers in this ...
+		if (*elem_p1 == elem)				// ... if the element pointed to by it is equal to the query element, ...
+			return true;				// ... return true.
+	return false;						// Else return false.
+}
+
 Elem* Tuple::deep_copy()				// Returns a tuple which is a deep_copy of this tuple.
 {
 	Tuple *clone = new Tuple;				// Make an empty clone tuple.
@@ -23,6 +31,11 @@ Elem* Tuple::deep_copy()				// Returns a tuple which is a deep_copy of this tupl
 const Elem & Tuple::operator[](int index) const         // R-value access.
 {
 	return *(*elems)[index];                        // Return a reference to an element pointed to by the element_pointer at index. 
+}
+
+Elem *& Tuple::operator[](int index)			// L-value access.
+{
+	return (*elems)[index];				// Return a reference to an element pointed to by the element_pointer at index.
 }
 
 bool Tuple::operator==(Elem &other_tuple)		// Checks two tuples for equality.	
@@ -58,7 +71,7 @@ string Tuple::to_string()				// Returns a string representation of the tuple.
 
 Tuple::~Tuple()				  // Destructor.
 {
-	for (auto &elem_p1 : *elems)	  // For every element_pointer in the vector of element_pointers in this tuple ...
-		delete elem_p1;		  // ... delete the object pointed to by that pointer.
-	delete elems;			  // And when done, delete the vector too.
+	//for (auto &elem_p1 : *elems)	  // For every element_pointer in the vector of element_pointers in this tuple ...
+	//	delete elem_p1;		  // ... delete the object pointed to by that pointer.
+	//delete elems;			  // And when done, delete the vector too.
 }
