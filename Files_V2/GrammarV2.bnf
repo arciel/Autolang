@@ -274,8 +274,8 @@
 
 <sub> -->   <int> <sub_tail>
 
-<subi_tail> -->   + <int>
-		| + <int> <subi_tail>
+<subi_tail> -->   - <int>
+		| - <int> <subi_tail>
 
 <mult> -->   <int> <mult_tail>
 

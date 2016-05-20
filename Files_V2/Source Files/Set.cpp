@@ -92,7 +92,7 @@ Elem *& Set::operator[](int index)               // L-value access.
 	return(*elems)[index];                   // Return an element_pointer at index.     
 }
 
-bool Set::operator==(Elem &other_set)                 // Checks two sets for equality.
+bool Set::operator==(Elem &other_set)            // Checks two sets for equality.
 {
 	if (other_set.type != SET) return false;
 	Set *other = (Set *)&other_set;

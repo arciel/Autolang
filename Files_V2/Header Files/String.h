@@ -27,7 +27,7 @@ public:
 
 	string to_string() { return "\"" + elem + "\""; }
 
-	~String() { delete &elem; } // Destructor - Delete the elem object.
+	~String() {  }						// Destructor - Delete the elem object.
 };
 
 #endif
