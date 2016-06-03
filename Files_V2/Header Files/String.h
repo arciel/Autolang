@@ -21,11 +21,11 @@ public:
 		if (x.type != STRING) return false;		// Check for types first and foremost.
 		String* _x = (String *)&x;
 		return this->elem == _x->elem;			// Then check for value.
-	} 
+	}
 
-	Elem* deep_copy() { return new String(elem); }
+	Elem* deep_copy() { return new String(elem); }		// Since String is an atomic data type, a deep copy is very simple.
 
-	string to_string() { return "\"" + elem + "\""; }
+	string to_string() { return "\"" + elem + "\""; }	// The string representation of a string is the string itself (in quotes).
 
 	~String() {  }						// Destructor - Delete the elem object.
 };

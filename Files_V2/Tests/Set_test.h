@@ -8,66 +8,86 @@
 #include "../Header Files/Logical.h"
 #include "../Header Files/String.h"
 
+/* The deep_copy() method has been well-tested and hence applied to help check memory leaks. */
+
 namespace Set_test
 {
 	using std::cout;
 	using std::endl;
 	
-	static void build_AB(Set &A, Set &B)
+	void build_AB(Set * & A, Set * & B)
 	{
 		cout << "\n----------- Constructing frequently used Sets A and B. -------------\n\n";
 		Tuple *t = new Tuple(new vector<Elem *>{new String("INTJ")});
 		vector<Elem *> *elems = new vector<Elem *>{ new String("Hello"), new Logical(true), t, new Int(27), new Char('J')};
-		A.elems = elems;
-		cout << "A = " << A.to_string() << endl;
+		A = new Set(elems, DIRECT_ASSIGN);
+		cout << "A = " << A->to_string() << endl;
 
 		Tuple *t2 = new Tuple(new vector<Elem *>{ new String("Suits")});
 		vector<Elem *> *elems2 = new vector<Elem *>{ new String("World"), new Logical(false), t2, new Int(06), new Char('J'), new Int(1996)};
-		B.elems = elems2;
-		cout << "B = " << B.to_string() << endl << endl;
+		B = new Set(elems2, DIRECT_ASSIGN);
+		cout << "B = " << B->to_string() << endl << endl;
 	}
 
-	static void cardinality(Set &A, Set &B)
+	void cardinality(Set * & A, Set * & B)
 	{
 		cout << "\n----------- Testing the cardinality() method for Sets. -------------\n\n";
-		cout << "|A| = " << A.cardinality() << endl;
-		cout << "|B| = " << B.cardinality() << endl << endl;
+		cout << "|A| = " << A->cardinality() << endl;
+		cout << "|B| = " << B->cardinality() << endl << endl;
 	}
 
-	static void _union(Set &A, Set &B)
+	void _union(Set * & A, Set * & B)
 	{
 		cout << "\n------------- Testing the _union() method for Sets. ----------------\n\n";
-		Set C = A._union(B);
-		cout << "A U B = " << C.to_string() << endl << endl;
+		Set * A_ = (Set *) A->deep_copy();
+		Set * B_ = (Set *) B->deep_copy();
+
+		Set * AuB = A_->_union(*B_);
+		cout << "A U B = " << AuB->to_string() << endl << endl;
+		delete A_, B_, AuB;
 	}
 
-	static void intersection(Set &A, Set &B)
+	void intersection(Set * & A, Set * & B)
 	{
+		Set * A_ = (Set *)A->deep_copy();
+		Set * B_ = (Set *)B->deep_copy();
+
+		Set * AandB = A_->intersection(*B_);
 		cout << "\n---------- Testing the intersection() method for Sets. -------------\n\n";
-		cout << "A & B = " << A.intersection(B).to_string() << endl << endl;
+		cout << "A & B = " << AandB->to_string() << endl << endl;
+		delete A_, B_, AandB;
 	}
 	
-	static void cartesian_product(Set &A, Set &B)
+	void cartesian_product(Set * & A, Set * & B)
 	{
-		Set *AxB = &A.cartesian_product(B);
+		Set * A_ = (Set *)A->deep_copy();
+		Set * B_ = (Set *)B->deep_copy();
+
+		Set * AxB = A_->cartesian_product(*B_);
 		cout << "\n------- Testing the cartesian_product() method for Sets. -----------\n\n";
 		cout << "A x B = " << AxB->to_string() << endl << endl;
+		delete A_, B_, AxB;
 	}
 
-	static void exclusion(Set &A, Set &B)
+	void exclusion(Set * & A, Set * & B)
 	{
+		Set * A_ = (Set *)A->deep_copy();
+		Set * B_ = (Set *)B->deep_copy();
+
+		Set * AwoB = A->exclusion(*B);
 		cout << "\n------------- Testing the exclusion() method for Sets. -------------\n\n";
-		cout << "A \\ B = " << A.exclusion(B).to_string() << endl << endl;
+		cout << "A \\ B = " << AwoB->to_string() << endl << endl;
+		delete A_, B_, AwoB;
 	}
 
-	static void access(Set &A, Set &B)
+	void access(Set * & A, Set * & B)
 	{
 		cout << "\n-------------- Testing the [] operator method for Sets. ------------\n\n";
-		cout << "A[0] = " << A[0]->to_string() << endl << endl;
-		cout << "B[0] = " << B[0]->to_string() << endl << endl << endl;
+		cout << "A[0] = " << (*A)[0]->to_string() << endl << endl;
+		cout << "B[0] = " << (*B)[0]->to_string() << endl << endl << endl;
 	}
 
-	static void homoset()
+	void homoset()
 	{
 		cout << "\n--------------- Testing the homoset() method for Sets. -------------\n\n";
 		Set C(new vector<Elem *>{ new Int(27), new Int( 6 ), new Int(1996) });
@@ -86,13 +106,14 @@ namespace Set_test
 			cout << " is not a homoset" << endl << endl;
 	}
 
-	static void subset(Set &A, Set &B)
+	void subset(Set * & A, Set * & B)
 	{
-		cout << "A[0, 2] = " << A.subset(0, 2).to_string() << endl;
-		cout << "B[1, 4] = " << B.subset(1, 4).to_string() << endl << endl;
+		
+		cout << "A[0, 2] = " << A->subset(0, 2)->to_string() << endl;
+		cout << "B[1, 4] = " << B->subset(1, 4)->to_string() << endl << endl;
 	}
 	
-	static void subset_of()
+	void subset_of()
 	{
 		cout << "\n------------- Testing the subset_of() method for Sets. -----------\n\n";
 		Set E(new vector<Elem *>{ new Int(1), new Int(2), new Char('3'), new Logical(true) });
@@ -105,7 +126,7 @@ namespace Set_test
 		cout << G.to_string() << " c " << H.to_string() << " = " << G.subset_of(H) << endl << endl;
 	}
 
-	static void equality()
+	void equality()
 	{
 		cout << "\n---------------- Testing the == operator for Sets. --------------\n\n";
 		Set I(new vector<Elem *> {
@@ -132,44 +153,15 @@ namespace Set_test
 		cout << I.to_string() << " == " << J.to_string() << " = " << (I == J) << endl;
 		cout << I.to_string() << " == " << K.to_string() << " = " << (I == K) << endl << endl;
 	}
-
-	static void deep_copy(Set &A)
-	{
-		cout << "\n------------ Testing the deep_copy() method for Sets. ----------\n\n";
-		cout << "A = " << A.to_string() << endl << endl;
-
-		Set *L = (Set *)(A.deep_copy());
-		cout << "Let L := A. L = " << L->to_string() << ", ";
-		cout << "(A == L) = " << (A == *L) << endl << endl; 
-
-		Set M = A;
-
-		cout << "Let M  = A. M = " << M.to_string() << ", ";
-		cout << "(A == M) = " << (A ==  M) << endl << endl;
-
-		delete (*L)[3];					// Remove the Int 27 from L[3].
-		(*L)[3] = new Int(28);				// Put a new Int 28 there.
-
-		delete M[3];
-		M[3] = new Int(29);
-
-		cout << "L[3] := 28, L = " << L->to_string() << endl;
-		cout << "M[3] := 29, M = " << M.to_string() << endl << endl;
-
-		cout << "A = " << A.to_string() << endl << endl; 
-
-		cout << "(A == L) = " << (A == *L) << endl;	
-		cout << "(A == M) = " << (A ==  M) << endl << endl;
-	}
 	
-	static void test_all()
+	void test_all()
 	{
-		Set A, B;
+		Set * A = nullptr, * B = nullptr;
 		build_AB(A, B);	cardinality(A, B);
 		_union(A, B);	intersection(A, B);
 		access(A, B);	homoset();
 		subset(A, B);	subset_of();
-		equality();	deep_copy(A);
+		equality();
 		cartesian_product(A, B);
 		exclusion(A, B);
 	}

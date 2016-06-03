@@ -9,7 +9,7 @@ namespace Map_test
 	using std::cout;
 	using std::endl;
 
-	static void build_F(Map *&F)
+	void build_F(Map *&F)
 	{
 		cout << "\n\n----------------Testing the Map constructor--------------\n" << endl;
 		Set *domain = new Set( new vector<Elem *> {
@@ -25,23 +25,23 @@ namespace Map_test
 			new Int(1996)
 		});
 
-		F = new Map(*domain, *codomain);
+		F = new Map(domain, codomain);
 	}
 
-	static void test_add_mapping(Map *&F)
+	void test_add_mapping(Map *&F)
 	{
 		cout << "\n\n-------------Testing the add_mapping() method------------\n" << endl;
 		for (int i{ 0 }; i < F->domain_s->cardinality(); i++)
 			F->add_maping(*(*F->domain_s)[i], *(*F->codomain_s)[i]);
 	} 
 
-	static void test_to_string(Map *&F)
+	void test_to_string(Map *&F)
 	{
 		cout << "\n\n--------------Testing the to_string() method-------------\n" << endl;
 		cout << "F = " << F->to_string() << endl;
 	}
 
-	static void test_sets(Map *&F)
+	void test_sets(Map *&F)
 	{
 		cout << "\n\n--Testing the domain(), codomain(), and range() methods--\n" << endl;
 		cout << "  domain(F) = " << F->domain()->to_string() << endl;
@@ -49,7 +49,7 @@ namespace Map_test
 		cout << "   range(F) = " << F->range()->to_string() << endl;
 	}
 
-	static void test_access_op(Map *&F)
+	void test_access_op(Map *&F)
 	{
 		cout << "\n\n---------------Testing the [] operator-------------------\n" << endl;
 		String s("Hello");
@@ -61,7 +61,7 @@ namespace Map_test
 		cout << "F[" << e->to_string() << "] = " << (*F)[*e]->to_string() << endl;
 	}
 
-	static void test_composed_with(Map *&F)
+	void test_composed_with(Map *&F)
 	{
 		cout << "\n\n-----------Testing the composition operator-------------\n" << endl;
 
@@ -82,8 +82,8 @@ namespace Map_test
 			new String("Greenback Boogey!"), new Int(4)
 		});
 
-		Map *composition_candidate_1 = new Map(*domain_1, *codomain);
-		Map *composition_candidate_2 = new Map(*domain_2, *codomain);
+		Map *composition_candidate_1 = new Map(domain_1, codomain);
+		Map *composition_candidate_2 = new Map(domain_2, codomain);
 		
 
 		String *s1 = (String *)(*domain_1)[0]; String *s2 = (String *)(*codomain)[0];
@@ -115,7 +115,7 @@ namespace Map_test
 		delete domain_1, domain_2, codomain, composition_candidate_1, composition_candidate_2, gof_1, gof_2;
 	}
 
-	static void test_deep_copy(Map *&F)
+	void test_deep_copy(Map *&F)
 	{
 		cout << "\n\n------------Testing the deep_copy() method--------------\n" << endl;
 		
@@ -134,7 +134,7 @@ namespace Map_test
 		delete F_prime;
 	}
 
-	static void test_all()
+	void test_all()
 	{
 		Map *F = nullptr;
 		build_F(F);

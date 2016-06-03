@@ -15,7 +15,7 @@ public:
 	vector<int> *pi_indices;		// Pre_image indices.
 
 	Map();					// Default constructor.
-	Map(Set &, Set &);			// Parameterized constructor.
+	Map(Set *, Set *);			// Parameterized constructor.
 	void add_maping(Elem &, Elem &);	// Adds a mapping from the left element to the right under this map.
 	Set *codomain();			// Returns the codomain of the ordered map.
 	Map *composed_with(Map &);		// Retuns a new map that is this map composed with another map.

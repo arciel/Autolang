@@ -23,7 +23,7 @@ Elem* Logical::deep_copy()			// Deep_copy method, which of course returns just a
 const Logical& Logical::operator=(Logical &x)	// Overloaded assignment operator.
 {
 	this->elem = x.elem;			// Basically make the truth value of the this logical element equal to that of x.
-	return this;				// Return a reference to this for cascading assignment.
+	return *this;				// Return a reference to this for cascading assignment.
 }
 
 Logical Logical::operator!()			// Overloaded negation operator.

@@ -1,6 +1,4 @@
 #include "../Header Files/Map.h"
-#include <iostream>
-using std::cout;
 
 /* Implementations for methods in the class Map. */
 
@@ -10,9 +8,9 @@ Map::Map() : Elem(MAP)					// Default constructor.
 	pi_indices = nullptr; map = nullptr;
 }
 
-Map::Map(Set &domain_s, Set &codomain_s) : Elem(MAP)	// Parameterized constructor.
+Map::Map(Set * domain_s, Set * codomain_s) : Elem(MAP)	// Parameterized constructor.
 {
-	this->domain_s = &domain_s; this->codomain_s = &codomain_s;
+	this->domain_s = domain_s; this->codomain_s = codomain_s;
 	map = new unordered_map<int, int>();
 	pi_indices = new vector<int>();
 }
@@ -29,7 +27,7 @@ void Map::add_maping(Elem &pre_image, Elem &image)	// Adds a mapping from the le
 			break;				// ... stop looking.
 		else
 			pre_image_index++;		// ... otherwise look at the next element_pointer.
-	
+
 	for (auto &elem_p2 : *codomain_s->elems)	// For every (any) element_pointer in the codomain's vector of element_pointers ...
 		if (*elem_p2 == image)			// ... if the element pointed to by it == image ...
 			break;
@@ -46,7 +44,7 @@ Map * Map::composed_with(Map &other_map)		// Returns a reference to a map object
 	if (!other_map.range()->subset_of(*domain_s))	// If the range of g is !c domain of f, the compose operation is not possible.
 		return nullptr;
 
-	Map * fog { new Map(*(other_map.domain_s), *codomain_s) }; // If the compose is possible, let's make a map the apt sets.
+	Map * fog { new Map((other_map.domain_s), codomain_s) };   // If the compose is possible, let's make a map the apt sets.
 
 	for (auto &index : *(other_map.map)) 			   // THE UGLIEST if-condition follows.
 
@@ -65,7 +63,7 @@ Elem * Map::deep_copy()					// Returns a deep_copy of this map (NOTE: Also deep_
 	Set * deep_domain   { (Set *)  domain_s->deep_copy() };	// Deep_copy the domain.
 	Set * deep_codomain { (Set *)codomain_s->deep_copy() };	// Deep_copy the codomain.
 
-	Map * deep_map {new Map(*deep_domain, *deep_codomain)};	// Make a new map object with the deep_domain and deep_range.
+	Map * deep_map {new Map(deep_domain, deep_codomain)};	// Make a new map object with the deep_domain and deep_range.
 
 	*deep_map->map = *this->map;			// Deep_copy the unordered map of pre_image_indices and image_indices.
 	*deep_map->pi_indices = *this->pi_indices;	// Deep_copy the vector of pre_image_indices.
@@ -86,7 +84,7 @@ Elem * Map::operator[](Elem &pre_image)			// Returns the image of the pre-image 
 	if (pre_image_index == domain_s->cardinality()) // If we didn't find the pre_image in the domain ...
 		return nullptr;				// ... return nullptr.
 
-	return (*codomain_s)[map->at(pre_image_index)];	// Otherwise of course return the image.
+	return (*codomain_s)[(*map)[pre_image_index]];	// Otherwise of course return the image.
 }
 
 const Elem * Map::operator[](Elem &pre_image) const	// Returns the image of the pre-image [R-value].

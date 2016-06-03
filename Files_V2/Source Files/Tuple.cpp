@@ -12,6 +12,11 @@ Tuple::Tuple(vector<Elem *> *elems) : Elem(TUPLE)	// Tuple-ize an existing vecto
 	this->elems = new vector<Elem *>(*elems);
 }
 
+Tuple::Tuple(vector<Elem *> *elems, int direct_assign) : Elem(TUPLE) // Tuple-ize an existing vector of element_pointers (Direct Assign).
+{
+	this->elems = elems;
+}
+
 bool Tuple::has(Elem &elem)				// Checks if a certain element is present in the tuple.
 {	
 	for (auto &elem_p1 : *elems)				// For every (any) element_pointer in the vector of element_pointers in this ...
@@ -28,12 +33,12 @@ Elem* Tuple::deep_copy()				// Returns a tuple which is a deep_copy of this tupl
 	return clone;						// Then return the clone.
 }
 
-const Elem & Tuple::operator[](int index) const         // R-value access.
+const Elem * Tuple::operator[](int index) const         // R-value access.
 {
-	return *(*elems)[index];                        // Return a reference to an element pointed to by the element_pointer at index. 
+	return (*elems)[index];                         // Return a reference to an element pointed to by the element_pointer at index. 
 }
 
-Elem *& Tuple::operator[](int index)			// L-value access.
+Elem * & Tuple::operator[](int index)			// L-value access.
 {
 	return (*elems)[index];				// Return a reference to an element pointed to by the element_pointer at index.
 }
@@ -71,7 +76,8 @@ string Tuple::to_string()				// Returns a string representation of the tuple.
 
 Tuple::~Tuple()				  // Destructor.
 {
-	//for (auto &elem_p1 : *elems)	  // For every element_pointer in the vector of element_pointers in this tuple ...
-	//	delete elem_p1;		  // ... delete the object pointed to by that pointer.
-	//delete elems;			  // And when done, delete the vector too.
+	for (auto &elem_p1 : *elems)	  // For every element_pointer in the vector of element_pointers in this tuple ...
+		if (elem_p1 != nullptr)   // ... if an object exists at the address that the pointer has ...
+			delete elem_p1;	  // ... delete the object pointed to by that pointer.
+	delete elems;			  // And when done, delete the vector too.
 }
