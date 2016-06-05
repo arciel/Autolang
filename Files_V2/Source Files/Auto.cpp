@@ -84,8 +84,7 @@ Logical Auto::accepts(String &query)
 	{	
 		Tuple t(new vector<Elem *> {				// Make a tuple t ...
 			current_state->deep_copy(), new Char(character) // ... that contains pointers to the deep_copies of the current_state...
-			, DIRECT_ASSIGN
-		});							// ... and a Char object constructed with the current character.
+		}, DIRECT_ASSIGN);					// ... and a Char object constructed with the current character.
 		if (((*delta)[t]) == nullptr) 		// If there does not exist any mapping from the current (state, char) pair ...
 			return Logical(false);		// ... return false because we're going to a dump state.
 
