@@ -16,7 +16,7 @@ private:
 	mytuple * make_super_automata(Auto *);	 // Makes the states = Q1 x Q2, and M((q1, q2), c) = (M1(q1, c), M2(q2, c)).
 public:
 	Set *sigma;			// The alphabet of the automaton. (Homotype == Character).
-	Set *states;			// The set of states (labels really). (Homotype == String).
+	Set *states;			// The set of states (labels really). (Homoset).
 	Map *delta;			// The transition function from sigma to states.
 	Elem *start;			// The label of (or tuples of labels for) the starting state.
 	Set *accepting;			// The set of accepting states (labels thereof).
