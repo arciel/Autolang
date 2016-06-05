@@ -84,6 +84,7 @@ Logical Auto::accepts(String &query)
 	{	
 		Tuple t(new vector<Elem *> {				// Make a tuple t ...
 			current_state->deep_copy(), new Char(character) // ... that contains pointers to the deep_copies of the current_state...
+			, DIRECT_ASSIGN
 		});							// ... and a Char object constructed with the current character.
 		if (((*delta)[t]) == nullptr) 		// If there does not exist any mapping from the current (state, char) pair ...
 			return Logical(false);		// ... return false because we're going to a dump state.
@@ -117,7 +118,7 @@ mytuple * Auto::make_super_automata(Auto *other)	// Makes the states = Q1 x Q2, 
 		Char  * sigma = (Char  *)(*preimage)[1];			// *sigma = c 
 
 		Tuple first_state_char_pair (					// first_state_char_pair = (q1, c)
-			new vector < Elem * >{
+			new vector < Elem * > {
 				(*state_pair)[0]->deep_copy(),			// Here we're making a deep-copy of q1.
 				sigma->deep_copy()				// And here one of sigma. 
 			},							// So now the tuple is (q1, c),
