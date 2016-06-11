@@ -8,7 +8,8 @@
 string token_name[] = {
 	"INT_LIT", "LOGICAL_LIT", "CHAR_LIT", "STRING_LIT", "SET_LIT", "TUPLE_LIT", "LITERAL",
 	"INDEX", "IDENTIFIER", "INT_OP", "CHAR_OP", "SET_OP", "OP",
-	"LOGICAL_OP", "STRING_OP", "TUPLE_OP", "MAP_OP", "AUTO_OP", "END", "ERROR", "EXPR" };
+	"LOGICAL_OP", "STRING_OP", "TUPLE_OP", "MAP_OP", "AUTO_OP", "END", "ERROR", "EXPR" 
+};
 
 string Token::to_string()
 {
@@ -23,8 +24,16 @@ string Token::to_string()
 
 
 // ------------------------------------------------------<CLASS NODE>-------------------------------------------//
+/*
+Elem * Node::parse_literal()		// Parses the token.lexeme to get a value, if the lexeme is a literal.
+{
+	if (this->token.types[0] != LITERAL) return nullptr;		// If the token is not a literal, ignore it.
+	if (this->token.types[1] == INT_LIT)				// If the token is an integer literal ...
+		return new Int(atoi(token.lexeme.c_str()));		// ... return the address of a new Int object.
 
-
+	if (this->token.types[1])
+}
+*/
 // -----------------------------------------------------</CLASS NODE>-------------------------------------------//
 
 
@@ -144,13 +153,14 @@ Token ExpressionTree::get_next_token()
 		if (current_index + 2 < expr.size() && expr[current_index + 2] == '\'')
 		{
 			int j = current_index;
+			current_index += 3;
 			return{ expr.substr(j, 3), { LITERAL, CHAR_LIT } };
 		}
 		else if (current_index + 3 < expr.size() && expr[current_index + 1] == '\\' && expr[current_index + 3] == '\'')
 		{
 			int j = current_index;		
-			current_index += 3;	
-			return{ expr.substr(j, 3), { LITERAL, CHAR_LIT } };
+			current_index += 4;	
+			return{ expr.substr(j, 4), { LITERAL, CHAR_LIT } };
 		}
 		else return{ "", {ERROR} };
 	}

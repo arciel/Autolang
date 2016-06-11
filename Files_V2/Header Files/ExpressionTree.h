@@ -41,27 +41,24 @@ public:
 	bool operator_node;		// To be set to true if the lexeme in the unit is an OP.
 	ExpressionTree *left, *right;
 
-	Node() 
-	{ 
-		left = nullptr; right = nullptr; 
-		operator_node = false; value = nullptr;
-	}
+	Node() { left = nullptr; right = nullptr; operator_node = false; value = nullptr; }
+
 	Elem * parse_literal();		// Parses the token.lexeme to get a value, if the lexeme is a literal.
 };
 
 class ExpressionTree
 {
 public:
-	string expr;					// The expression that the tree is going to parse.
-	int current_index;				// The current index into the expression_string.
-	Node * root;					// The root tree of the expression.
+	string expr;			// The expression that the tree is going to parse.
+	int current_index;		// The current index into the expression_string.
+	Node * root;			// The root tree of the expression.
 
-	void skip_whitespace();				// Skips whitespace in the expression.
+	void skip_whitespace();		// Skips whitespace in the expression.
 
-	ExpressionTree(string &);			// Construct the tree given the expression.
-	Elem * evaluate();				// Will evaluate the expression and return the result (Elem * in the root).
-	~ExpressionTree() { }				// Will think about this later.
-	Token get_next_token();				// The lexical analyzer (lexer) for the expression.
+	ExpressionTree(string &);	// Construct the tree given the expression.
+	Elem * evaluate();		// Will evaluate the expression and return the result (Elem * in the root).
+	~ExpressionTree() { }		// Will think about this later.
+	Token get_next_token();		// The lexical analyzer (lexer) for the expression.
 };
 
 
