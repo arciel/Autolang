@@ -29,6 +29,7 @@ public:
 	Auto * accepts_intersection(Auto *);	// Returns an automaton that accepts the intersection of the languages of this and other auto.
 	Auto * accepts_exclusively(Auto *);	// Returns an automaton that accepts all string in L(this) that are not in L(other).
 	Elem * deep_copy();			// Returns a deep_copy of this automaton.
+	bool operator==(Elem &);		// The overloaded == operator for Automata.
 	string to_string();			// Returns a string representation of the automaton.
 
 	~Auto();

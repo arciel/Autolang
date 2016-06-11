@@ -3,7 +3,6 @@
 #include "../Header Files/Auto.h"
 #include <cstdlib>
 #include <iostream>
-#include <tuple>
 
 using std::cout;
 using std::endl;
@@ -227,6 +226,21 @@ Elem * Auto::deep_copy()					// Return a deep_copy() of this automaton.
 		(Map *)this->delta->deep_copy(),
 		(Set *)this->accepting->deep_copy(),
 		DIRECT_ASSIGN					// ... directly assign to its corresponding fields.
+	);
+}
+
+bool Auto::operator==(Elem &other)				// The overloaded == operator for Automata.
+{
+	if (other.type != AUTO)					// If the other element is not an automaton, it  won't be equal to this.
+		return false;	
+	Auto * that = (Auto *) & other;				// We can introduce a pointer to other, called that, with an Auto interface.
+	return							// Now return the result of this expression.
+	(
+		(this->states == that->states) &&		// Between you and me, this probably won't ever be used. But well, why not.
+		( this->sigma == that->sigma ) &&
+		( this->start == that->start ) &&
+		( this->delta == that->delta ) &&
+		(this->accepting == that->accepting)
 	);
 }
 
