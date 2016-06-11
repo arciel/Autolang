@@ -2,7 +2,7 @@
 #define AUTO_TEST_H
 
 #include "../Header Files/Auto.h"
-#include "Map_test.h"
+#include <iostream>
 
 using std::cout;
 using std::endl;
