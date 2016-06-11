@@ -14,7 +14,7 @@ void print_n(int n)
 
 int main() 
 {	
-	string expression = "(f o g)[A U {1, 2}]";
+	string expression = "'A' + '\''";
 	cout << "Parsing Expression: " << expression << endl << endl;
 	
 
