@@ -4,6 +4,7 @@
 #include "Map.h"
 #include "String.h"
 #include "Char.h"
+#include "Int.h"
 #include "Logical.h"
 
 #define mytuple std::tuple<Set*,Set*,Elem*,Map*> 
