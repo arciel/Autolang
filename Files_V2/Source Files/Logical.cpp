@@ -15,6 +15,11 @@ Logical::Logical(bool t_val) : Elem(LOGICAL)	// Another constructor with argumen
 	elem = t_val;
 }
 
+Logical::Logical(string &t_val) : Elem(LOGICAL) // Construct a logical object using its string representation.
+{
+	elem = (t_val == "True") ? true : false;
+}
+
 Elem* Logical::deep_copy()			// Deep_copy method, which of course returns just a logical instance since it's atomic.
 {
 	return new Logical(elem);		// Return the address to a new Logical object, initialized with the same value as this.

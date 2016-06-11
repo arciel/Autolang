@@ -27,13 +27,29 @@ string Token::to_string()
 /*
 Elem * Node::parse_literal()		// Parses the token.lexeme to get a value, if the lexeme is a literal.
 {
-	if (this->token.types[0] != LITERAL) return nullptr;		// If the token is not a literal, ignore it.
-	if (this->token.types[1] == INT_LIT)				// If the token is an integer literal ...
-		return new Int(atoi(token.lexeme.c_str()));		// ... return the address of a new Int object.
+	if (this->token.types[0] != LITERAL) return nullptr;	// If the token is not a literal, ignore it.
+	if (this->token.types[1] == INT_LIT)			
+		return new Int(token.lexeme);			
 
-	if (this->token.types[1])
-}
-*/
+	if (this->token.types[1] == CHAR_LIT)			
+		return new Char(token.lexeme);
+
+	if (this->token.types[1] == LOGICAL_LIT)
+		return new Logical(token.lexeme);
+		
+	if (this->token.types[1] == STRING_LIT)
+		return new String(token.lexeme, 0);		// The 0 means that the string being passed is a representation of the object.
+								// (as opposed to its value).
+
+	if (this->token.types[1] == SET)
+	{
+		
+
+	}
+
+
+}*/
+
 // -----------------------------------------------------</CLASS NODE>-------------------------------------------//
 
 
@@ -84,7 +100,7 @@ Token ExpressionTree::get_next_token()
 
 	//----------------------------------------------<MAP OP>-----------------------------------------------//
 
-	else if (expr[current_index] == 'o')			// Cardinality op.
+	else if (expr[current_index] == 'o')			// Map compose op.
 	{
 		current_index++;
 		return{ "o", { OP, MAP_OP } };

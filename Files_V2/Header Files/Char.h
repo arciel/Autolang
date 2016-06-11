@@ -8,15 +8,17 @@ class Char : public Elem
 public:
 	char elem;
 
-	Char() : Elem(CHAR) { elem = '\0'; }		// Default constructor.
+	Char() : Elem(CHAR) { elem = '\0'; }						// Default constructor.
 
-	Char(char c) : Elem(CHAR) { this->elem = c; }	// Parametrized constructor.
+	Char(char c) : Elem(CHAR) { this->elem = c; }					// Parametrized constructor.
 
-	bool operator==(Elem &x)			// Overloaded == operator.
+	Char(string &c) : Elem(CHAR) { this->elem = (c[0] == '\\') ? c[1] : c[0]; }	// Construct a char object using a string rep of it.
+
+	bool operator==(Elem &x)							// Overloaded == operator.
 	{ 
-		if (x.type != CHAR) return false;	// Check for types first and foremost.
+		if (x.type != CHAR) return false;					// Check for types first and foremost.
 		Char *_x = (Char *)&x;
-		return this->elem == _x->elem;		// Then check for value.
+		return this->elem == _x->elem;						// Then check for value.
 	} 
 
 	Elem* deep_copy() { return new Char(elem); }

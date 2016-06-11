@@ -9,6 +9,7 @@ public:
 	bool elem;				// A boolean element is the internal representation.
 	Logical();				// Default constructor.
 	Logical(bool);				// Another constructor with argument.
+	Logical(string &);			// Construct a logical object using its string representation.
 	Elem* deep_copy();			// Deep_copy method, which of course returns just a logical instance since it's atomic.
 	Logical operator!();			// Overloaded negation operator.
 	Logical operator&&(Logical &);		// Overloaded logical and. 

@@ -21,6 +21,20 @@ Set::Set(vector<Elem *> *elems, int direct_assign) : Elem(SET) // It is possible
 	this->elems = elems;			// Just make the set's vector_pointer point to that existing vector.
 }
 
+Set::Set(string &x) : Elem(SET)			// Construct a set using a string representation of it.
+{
+	Set();
+	int level = 0;
+	vector<string> elements;		// We're going to extract e1, e2 ... out of x = "{ e1, e2, ... }" (their string representations).	
+	int start = 1;				// Every element will be x[start, i).			
+	for (int i = 1; i < x.size(); i++)
+		if (x[i] == ',' && level == 0)
+		{
+			
+		}
+			
+}
+
 int Set::cardinality()				// Returns the cardinality of the set.
 {
         return elems->size();			// Which is just the number of elements in the set.

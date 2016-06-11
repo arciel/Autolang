@@ -14,7 +14,7 @@ void print_n(int n)
 
 int main() 
 {	
-	string expression = "'A' + '\''";
+	string expression = "{1, 2, (1,)} & {}";
 	cout << "Parsing Expression: " << expression << endl << endl;
 	
 
