@@ -2,10 +2,6 @@
 #define AUTO_H
 
 #include "Map.h"
-#include "String.h"
-#include "Char.h"
-#include "Int.h"
-#include "Logical.h"
 
 #define mytuple std::tuple<Set*,Set*,Elem*,Map*> 
 
@@ -25,12 +21,14 @@ public:
 	Auto(Set *, Set *, Elem *, Map *, Set *);		// Constructor (Copy elements).
 	Auto(Set *, Set *, Elem *, Map *, Set *, int);		// Constructor (Direct assign).
 
-	Logical accepts(String &);		// Returns True if the automaton is in an accepting state after running the query string.
+	Logical * operator[](String &);			// Returns True if the automaton is in an accepting state after running the query string.
+	const Logical * operator[](String &) const;	// Returns True if the automaton is in an accepting state after running the query string.
 	Auto * accepts_union(Auto *);		// Returns an automaton that accepts the union of the languages of this and other automaton.
 	Auto * accepts_intersection(Auto *);	// Returns an automaton that accepts the intersection of the languages of this and other auto.
 	Auto * accepts_exclusively(Auto *);	// Returns an automaton that accepts all string in L(this) that are not in L(other).
 	Elem * deep_copy();			// Returns a deep_copy of this automaton.
 	bool operator==(Elem &);		// The overloaded == operator for Automata.
+	bool operator<(Elem &e) {return false;} // This op is basically useless for Automata.
 	string to_string();			// Returns a string representation of the automaton.
 
 	~Auto();

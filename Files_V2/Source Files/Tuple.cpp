@@ -1,4 +1,5 @@
 #include "../Header Files/Tuple.h"
+#include "../Header Files/Set.h"
 
 /* Implementations for the methods in the class Tuple. */
 
@@ -11,6 +12,49 @@ Tuple::Tuple(vector<Elem *> *elems) : Elem(TUPLE)	// Tuple-ize an existing vecto
 {
 	this->elems = new vector<Elem *>(*elems);
 }
+
+Tuple::Tuple(string &x) : Elem(TUPLE)			// Construct a set using a string representation of it.
+{
+	Tuple();
+	int level = 0, start = 0;
+	vector<string> elements;			// We're going to extract e1, e2 ... out of x = "{ e1, e2, ... }".	
+	while (x[start] != '(')	start++;		// Look for the set's opening brace.	
+	while (isspace(x[start])) start++;		// Once we've found the opening '(', remove the extra space before the first element.
+	for (int i = start + 1; i < x.size(); i++)
+	{
+		if (x[i] == ')' && level == 0)		// Usually the closing ')' will be the last character in the string, but, just in case.
+			break;
+		if (x[i] == ',' && level == 0)		// If we find a comma that delimits an elements representation ...
+		{
+			int j = i;					// Store the position of the comma.
+			while (isspace(j - 1)) j--;			// Work back from there, to get a trimmed representation. 
+			elements.push_back(x.substr(start, j - start));	// Push it to the vector of representations.
+			start = i + 1;					// The next element's representation will usually start from i + 1.
+			while (isspace(x[start])) start++;		// But it may not, in case of extra spaces.
+			i = start;					// Also, we can safely take i to start.
+		}
+		else if (x[i] == '{' || x[i] == '(' || x[i] == '[')	// Assuming the {([ are all properly matched (how to ensure that?).
+			level++;
+		else if (x[i] == '}' || x[i] == ')' || x[i] == ']')
+			level--;
+	}
+	for (auto &rep : elements)
+	{
+		if (rep[0] == '{')				// If the element to be parsed is a set ...
+			this->elems->push_back(new Set(rep));	// ... recursively parse that too.
+		else if (rep[0] == '(')
+			this->elems->push_back(new Tuple(rep));
+		else if (isdigit(rep[0]))
+			this->elems->push_back(new Int(rep));
+		else if (rep[0] == '\'')
+			this->elems->push_back(new Char(rep));
+		else if (rep[0] == '"')
+			this->elems->push_back(new String(rep, 0));
+		else if (rep == "True" || rep == "False")
+			this->elems->push_back(new Logical(rep));
+	}
+}
+
 
 Tuple::Tuple(vector<Elem *> *elems, int direct_assign) : Elem(TUPLE) // Tuple-ize an existing vector of element_pointers (Direct Assign).
 {

@@ -2,10 +2,9 @@
 #define SET_H
 
 #define DIRECT_ASSIGN 2		/* Shall be used whenever the constructor at line 20 is to be evoked (And for other similar constructors). */
-						   
-#include "Tuple.h"
-#include <vector>
 
+#include "Tuple.h"
+						   
 using std::vector;
 using std::string;
 
@@ -14,7 +13,7 @@ using std::string;
 class Set : public Elem
 {
 public:
-	vector<Elem *> *elems;                     // A set is internally implemented as a vector of element_pointers.
+	vector<Elem *> * elems;                    // A set is internally implemented as a vector of element_pointers.
 	Set();                                     // Default constructor.
 	Set(vector<Elem *> *);                     // It is possible to initialize a set with an existing vector (Copy pointers).
 	Set(vector<Elem *> *, int);		   // It is possible to initialize a set with an existing vector (Direct assign).
@@ -32,6 +31,7 @@ public:
 	Elem * & operator[](int);	           // L-value access.
 	const Elem * operator[](int) const;	   // R-value access.
 	bool operator==(Elem &);                   // Checks two sets for equality.
+	bool operator<(Elem &e) { return false; }  // This op is basically useless for sets.
 	string to_string();                        // Returns a string representation of the set.
 	Set * _union(Set &);                       // Union with a second set.
 	~Set();					   // Destructor.

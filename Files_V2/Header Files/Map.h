@@ -2,8 +2,9 @@
 #define MAP_H
 
 #include "Set.h"
-#include <unordered_map>
+#include "Tuple.h"
 #include <algorithm>
+#include <unordered_map>
 
 using std::unordered_map;
 

@@ -76,7 +76,7 @@ Auto::Auto(Set *states, Set *sigma, Elem *start, Map *delta, Set *accepting, int
 	this->accepting = accepting;
 }
 
-Logical Auto::accepts(String &query)
+Logical * Auto::operator[](String &query)
 {
 	Elem *current_state = start;			// Initially, the current_state is the starting state 'start'.
 	for (auto &character : query.elem)		// For every character in the query string ...
@@ -85,11 +85,27 @@ Logical Auto::accepts(String &query)
 			current_state->deep_copy(), new Char(character) // ... that contains pointers to the deep_copies of the current_state...
 		}, DIRECT_ASSIGN);					// ... and a Char object constructed with the current character.
 		if (((*delta)[t]) == nullptr) 		// If there does not exist any mapping from the current (state, char) pair ...
-			return Logical(false);		// ... return false because we're going to a dump state.
+			return new Logical(false);	// ... return false because we're going to a dump state.
 
-		current_state = (Elem *)(*delta)[t];	// Use this tuple as input to the transition map 'delta', and update the current_state.
-	}						// Finally we'll have current_state as the final state of the query.
-	return Logical(accepting->has(*current_state));	// If the final state is in the set of accepting states, return True, else return False.
+		current_state = (Elem *)(*delta)[t];	    // Use this tuple as input to the transition map 'delta', and update the current_state.
+	}						    // Finally we'll have current_state as the final state of the query.
+	return new Logical(accepting->has(*current_state)); // If the final state is in the set of accepting states, return True, else return False.
+}
+
+const Logical * Auto::operator[](String &query) const
+{
+	Elem *current_state = start;			// Initially, the current_state is the starting state 'start'.
+	for (auto &character : query.elem)		// For every character in the query string ...
+	{
+		Tuple t(new vector<Elem *>{				// Make a tuple t ...
+			current_state->deep_copy(), new Char(character) // ... that contains pointers to the deep_copies of the current_state...
+		}, DIRECT_ASSIGN);					// ... and a Char object constructed with the current character.
+		if (((*delta)[t]) == nullptr) 		// If there does not exist any mapping from the current (state, char) pair ...
+			return new Logical(false);	// ... return false because we're going to a dump state.
+
+		current_state = (Elem *)(*delta)[t];	    // Use this tuple as input to the transition map 'delta', and update the current_state.
+	}						    // Finally we'll have current_state as the final state of the query.
+	return new Logical(accepting->has(*current_state)); // If the final state is in the set of accepting states, return True, else return False.
 }
 
 mytuple * Auto::make_super_automata(Auto *other)	// Makes the states = Q1 x Q2, and M((q1, q2), c) = (M1(q1, c), M2(q2, c)).

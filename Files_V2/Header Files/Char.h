@@ -21,6 +21,12 @@ public:
 		return this->elem == _x->elem;						// Then check for value.
 	} 
 
+	bool operator<(Elem &x)								// Lexicographically compares two strings.
+	{
+		Char *_x = (Char *)&x;
+		return this->elem < _x->elem;
+	}
+
 	Elem* deep_copy() { return new Char(elem); }
 
 	string to_string()

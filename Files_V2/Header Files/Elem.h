@@ -20,6 +20,10 @@ public:
 	{
 		return (this->type != elem.type) ? false : this->operator==(elem);
 	}
+	virtual bool operator<(Elem &elem)
+	{
+		return (this->type != elem.type) ? false : this->operator<(elem);
+	}
 	virtual string to_string() = 0;       // Virtual to_string method for display.
 	virtual Elem* deep_copy() = 0;        // Virtual deep_copy method for making a 'deep clone' of the object.
 };

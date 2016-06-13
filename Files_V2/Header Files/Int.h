@@ -17,6 +17,11 @@ public:
 		if (x.type != INT) return false;		// Check for types first and foremost.
 		Int *_x = (Int *)&x;
 		return (_x->elem == this->elem);
+	}	
+	bool operator<(Elem &x)					// Compares two ints.
+	{
+		Int *_x = (Int *)&x;
+		return this->elem < _x->elem;
 	}
 	string to_string() 					// Return a string constructed using the integer elem cast to a character array.
 	{

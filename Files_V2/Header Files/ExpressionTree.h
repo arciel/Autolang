@@ -1,24 +1,17 @@
 #ifndef EXPRESSION_TREE_H            
 #define EXPRESSION_TREE_H            
                                      
-#include "Auto.h" 
+#include "ProgramVars.h"
+#include "Auto.h"
+#include <vector>
                                      
 using std::string;
-
-namespace program_vars
-{
-	static unordered_map<string, Elem *> identifiers;
-}
-
-                                     
-// Token types in INT_LIT, LOGICAL_LIT, CHAR_LIT, STRING_LIT, SET_LIT, TUPLE_LIT, 
-// LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, IDENTIFIER, COMMA,
-// DOUBLE_QUOTE, SINGLE_QUOTE, INT_OP, SET_OP, LOGICAL_OP, STRING_OP.
+using std::vector;
 
 enum Token_type 
 { 
 	INT_LIT, LOGICAL_LIT, CHAR_LIT, STRING_LIT, SET_LIT, TUPLE_LIT, LITERAL,
-	INDEX, IDENTIFIER, INT_OP, CHAR_OP, SET_OP, OP,
+	INDEX, IDENTIFIER, INT_OP, CHAR_OP, SET_OP, COPY_OP, OP, UNARY,
 	LOGICAL_OP, STRING_OP, TUPLE_OP, MAP_OP, AUTO_OP, END, ERROR, EXPR
 };
 
@@ -44,6 +37,13 @@ public:
 	Node() { left = nullptr; right = nullptr; operator_node = false; value = nullptr; }
 
 	Elem * parse_literal();		// Parses the token.lexeme to get a value, if the lexeme is a literal.
+	Elem * evaluate();		// Evaluates an expression.
+	~Node()
+	{
+		if (left != nullptr) delete left; 
+		if (right != nullptr) delete right;
+		if (/*token.types[0] == LITERAL &&*/ value != nullptr) delete value;
+	}
 };
 
 class ExpressionTree
@@ -57,8 +57,8 @@ public:
 
 	ExpressionTree(string &);	// Construct the tree given the expression.
 	Elem * evaluate();		// Will evaluate the expression and return the result (Elem * in the root).
-	~ExpressionTree() { }		// Will think about this later.
 	Token get_next_token();		// The lexical analyzer (lexer) for the expression.
+	~ExpressionTree(){delete root;} // Will think about this later.
 };
 
 

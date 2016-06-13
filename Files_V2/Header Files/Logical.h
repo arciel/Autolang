@@ -16,6 +16,7 @@ public:
 	Logical operator||(Logical &);		// Overloaded logical or.
 	bool operator==(Elem &);		// Overloaded == operator.
 	const Logical& operator=(Logical &);	// Overloaded logical or.
+	bool operator<(Elem &x)	{return false;}	// This op is basically useless for logicals.
 	string to_string();			// Virtual to_string method for display.
 	~Logical() { }				// Empty destructor.
 };
