@@ -1,12 +1,7 @@
 #ifndef SET_H
 #define SET_H
 
-#define DIRECT_ASSIGN 2		/* Shall be used whenever the constructor at line 20 is to be evoked (And for other similar constructors). */
-
 #include "Tuple.h"
-						   
-using std::vector;
-using std::string;
 
 /* Definition of a Set in Autolang. */
 
@@ -21,6 +16,7 @@ public:
 	int cardinality();                         // Returns the cardinality of the set.	
 	Set * cartesian_product(Set &);            // Returns the cartesian product of this set and the other set.
 	Elem * deep_copy();			   // Returns a new set which is a deep_copy of this set.
+	void delete_elems();			   // Delete elements.
 	Set * exclusion(Set &);                    // Returns a set containing elements of this, minus those of the argument.
 	bool has(Elem &);                          // Looks for an element in the set.
 	bool homoset();				   // Returns true if every element of this set has the same type.
@@ -28,7 +24,7 @@ public:
 	Set * intersection(Set &);                 // Intersection with a second set.
 	Set * subset(int, int);                    // Returns a subset of the set containing elements in [start, end).
 	bool subset_of(Set &);                     // Checks if this set is a subset of the candidate_superset.
-	Elem * & operator[](int);	           // L-value access.
+	Elem * operator[](int);			   // L-value access.
 	const Elem * operator[](int) const;	   // R-value access.
 	bool operator==(Elem &);                   // Checks two sets for equality.
 	bool operator<(Elem &e) { return false; }  // This op is basically useless for sets.

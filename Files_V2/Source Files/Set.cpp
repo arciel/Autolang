@@ -1,8 +1,5 @@
 #include "../Header Files/Set.h"
-#include <iostream>
-
-using std::cout;
-using std::endl;
+#include "../Header Files/ExpressionTree.h"
 
 /* Implementations for methods in the class Set. */
 
@@ -25,35 +22,41 @@ Set::Set(string &x) : Elem(SET)					// Construct a set using a string representa
 {
 	this->elems = new vector<Elem *>;
 	int level = 0, start = 0;
+	bool in_string = false;
 	vector<string> elements;			// We're going to extract e1, e2 ... out of x = "{ e1, e2, ... }".	
 	while (x[start] != '{')	start++;		// Look for the set's opening brace.	
 	start++;
 	while (isspace(x[start])) start++;		// Once we've found the opening brace, remove the extra space before the first element.
-	for (int i = start + 1; i < x.size(); i++)
+	for (int i = start; i < x.size(); i++)
 	{
-		if (x[i] == '}' && level == 0)		// Usually the closing brace will be the last character in the string, but, just in case.
+		if (x[i] == '}' && (i <= 0 || x[i] != '\\') && level == 0) // Usually the closing ')' will be the last character in the string, but, just in case.
 		{
 			int j = i;					// Store the position of the comma.
-			while (isspace(j - 1)) j--;			// Work back from there, to get a trimmed representation. 
-			elements.push_back(x.substr(start, j - start));	// Push it to the vector of representations
-			start = i + 1;					// The next element's representation will usually start from i + 1.
-			while (isspace(x[start])) start++;		// But it may not, in case of extra spaces.
-			i = start;					// Also, we can safely take i to start.
+			while (isspace(x[j - 1])) j--;			// Work back from there, to get a trimmed representation.
+			if (x.substr(start, j - 1) != "")		// If the trimmed representation isn't empty.
+				elements.push_back(x.substr(start, j - start));	// Push it to the vector of representations
 			break;
 		}
-		if (x[i] == ',' && level == 0)		// If we find a comma that delimits an elements representation ...
+		if (((x[i] == '`' && !in_string) || x[i] == '{' || x[i] == '(' || x[i] == '[')
+			&& (i == 0 || x[i - 1] != '\\')) {
+			level++;
+			if (x[i] == '`' && !in_string) in_string = true;
+		}
+		else if (((x[i] == '`' && in_string) || x[i] == '}' || x[i] == ')' || x[i] == ']')
+			&& (i == 0 || x[i - 1] != '\\')) {
+			level--;
+			if (x[i] == '`' && in_string) in_string = false;
+		}
+		else if (x[i] == ',' && level == 0)		// If we find a comma that delimits an elements representation ...
 		{
 			int j = i;					// Store the position of the comma.
-			while (isspace(j-1)) j--;			// Work back from there, to get a trimmed representation. 
-			elements.push_back(x.substr(start, j - start));	// Push it to the vector of representations
-			start = i+1;					// The next element's representation will usually start from i + 1.
+			while (isspace(x[j - 1])) j--;			// Work back from there, to get a trimmed representation. 
+			if (x.substr(start, j - 1) != "")		// If the trimmed representation isn't empty.
+				elements.push_back(x.substr(start, j - start));	// Push it to the vector of representations
+			start = i + 1;					// The next element's representation will usually start from i + 1.
 			while (isspace(x[start])) start++;		// But it may not, in case of extra spaces.
-			i = start;					// Also, we can safely take i to start.
+			if (x[start] == '}') break;
 		}
-		else if (x[i] == '{' || x[i] == '(' || x[i] == '[')	// Assuming the {([ are all properly matched (how to ensure that?).
-			level++;
-		else if (x[i] == '}' || x[i] == ')' || x[i] == ']')
-			level--;
 	}
 	for (auto &rep : elements)
 	{
@@ -62,15 +65,19 @@ Set::Set(string &x) : Elem(SET)					// Construct a set using a string representa
 		else if (rep[0] == '(')				
 			this->elems->push_back(new Tuple(rep)); 
 		else if (isdigit(rep[0]))
-		{
 			this->elems->push_back(new Int(rep));
-		}		
 		else if (rep[0] == '\'')
 			this->elems->push_back(new Char(rep));
-		else if (rep[0] == '"')
+		else if (rep[0] == '`')
 			this->elems->push_back(new String(rep, 0));
 		else if (rep == "True" || rep == "False")
 			this->elems->push_back(new Logical(rep));
+		else
+		{
+			ExpressionTree expr(rep, ROOT);
+			Elem * e = expr.evaluate();
+			this->elems->push_back(e);
+		}
 	}
 }
 
@@ -97,6 +104,13 @@ Elem * Set::deep_copy()				// Returns a new set which is a deep-copy of this set
 	for (auto &elem_p1 : *elems)				// For every element_pointer in the vector of element_pointers in this set ...
 		clone->elems->push_back(elem_p1->deep_copy());  // ... push into the clone, a deep_copy of the object pointed to by the pointer. 
 	return clone;						// Return a pointer to the clone.
+}
+
+void Set::delete_elems()
+{
+	for (auto &elem_p1 : *elems)		// For every element_pointer in the vector of element_pointers in this set ...
+		if (elem_p1 != nullptr)		// ... if an object exists at the address that the pointer has ...
+			delete elem_p1;		// ... delete the object pointed to by that pointer.
 }
 
 Set * Set::exclusion(Set &exclude)		// Returns a set containing the elements of this set, minus those of the argument. 
@@ -149,7 +163,7 @@ const Elem * Set::operator[](int index) const	// R-value access.
 	return (*elems)[index];			// Return a reference to an element pointed to by the element_pointer at index. 
 }
 
-Elem * & Set::operator[](int index)		// L-value access.
+Elem * Set::operator[](int index)		// L-value access.
 {
 	return (*elems)[index];			// Return an element_pointer at index.     
 }
