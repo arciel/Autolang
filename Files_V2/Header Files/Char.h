@@ -12,7 +12,18 @@ public:
 
 	Char(char c) : Elem(CHAR) { this->elem = c; }					// Parametrized constructor.
 
-	Char(string &c) : Elem(CHAR) { this->elem = (c[0] == '\\') ? c[1] : c[0]; }	// Construct a char object using a string rep of it.
+	Char(string &c) : Elem(CHAR) 
+	{
+		if (c.size() == 3) { this->elem == c[1]; return; }
+		if (c[2] == '\\')							// Construct a char object using a string rep of it.
+		{
+			if (c[3] == 'r') this->elem = '\r';
+			else if (c[3] == '\'') this->elem = '\'';
+			else if (c[3] == 'n') this->elem = '\n';
+			else if (c[3] == 't') this->elem = '\t';
+		}
+		else this->elem = c[2];
+	}
 
 	bool operator==(Elem &x)							// Overloaded == operator.
 	{ 
@@ -31,10 +42,9 @@ public:
 
 	string to_string()
 	{
-		string representation = "'";
-		representation += elem;
-		representation += "'";
-		return representation;
+		string rep = "";
+		rep += elem;
+		return rep; 
 	}
 };
 #endif

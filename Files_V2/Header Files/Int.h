@@ -2,7 +2,6 @@
 #define INT_H
 
 #include "Elem.h"
-#include <sstream>
 
 class Int : public Elem
 {
@@ -25,9 +24,7 @@ public:
 	}
 	string to_string() 					// Return a string constructed using the integer elem cast to a character array.
 	{
-		std::stringstream representation;
-		representation << elem;
-		return representation.str();
+		return std::to_string(elem);			// Use C++'s own to_string function.
 	} 
 	~Int() { }						// Empty destructor.
 };

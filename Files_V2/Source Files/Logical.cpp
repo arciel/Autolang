@@ -1,7 +1,4 @@
 #include "../Header Files/Logical.h"
-#include <iostream>
-using std::cout;
-using std::endl;
 
 /* Implementations for the methods in the class Logical. */
 

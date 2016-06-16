@@ -3,8 +3,6 @@
 
 #include "Elem.h"
 
-using std::string;
-
 class String : public Elem
 {
 public:
@@ -31,7 +29,15 @@ public:
 	}
 	Elem * deep_copy() { return new String(elem); }		// Since String is an atomic data type, a deep copy is very simple.
 
-	string to_string() { return "\"" + elem + "\""; }	// The string representation of a string is the string itself (in quotes).
+	string to_string()					// The string representation of a string is the string itself (in quotes).
+	{
+		string rep = "";
+		for (int i = 0; i < elem.size(); i++)
+		{
+			if (!(elem[i] == '\\')) rep += elem[i];
+		}
+		return rep + "";
+	}
 
 	~String() {  }						// Destructor - Delete the elem object.
 };
