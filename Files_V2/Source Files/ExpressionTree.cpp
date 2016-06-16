@@ -403,10 +403,17 @@ Elem * ExpressionTree::evaluate()
 				else if (left->type == STRING)
 				{
 					if (right->type == STRING)
-						return new String(((String*)left)->elem + ((String*)right)->elem);
-
+					{	
+						string str = ((String*)left)->elem;
+						str += ((String*)right)->elem;
+						return new String(str);
+					}
 					else if (right->type == CHAR)
-						return new String(((String*)left)->elem + ((Char*)right)->elem);
+					{	
+						string cha = ((String*)left)->elem;
+						cha += ((Char*)right)->elem;
+						return new String(cha);
+					}
 				}
 			}
 			else if (node->token.lexeme == "-")
@@ -1101,7 +1108,12 @@ ExpressionTree::ExpressionTree(string &expr)
 			node = new Node();
 			node->operator_node = true;
 			node->token = { "()", { OP, UNARY, EXPR } };
-			node->left = new ExpressionTree((string)"((" + t1.lexeme + ")" + "[" + t2.lexeme + "]" + ")");
+			string arg = "((";
+			arg += t1.lexeme;
+			arg += (string)")[";
+			arg += t2.lexeme;
+			arg += (string)"])";
+			node->left = new ExpressionTree(arg);
 		}
 		return;
 	}
@@ -1130,9 +1142,11 @@ ExpressionTree::ExpressionTree(string &expr)
 				node = new Node();					 
 				node->operator_node = true;
 				node->token = { "()", {OP, UNARY, EXPR} };
-				node->left = new ExpressionTree (
-					(string)"(!(" + to_be_negated.lexeme + "))" + rest
-				);
+				string arg = "(!(";
+				arg += to_be_negated.lexeme;
+				arg += (string)"))";
+				arg += rest;
+				node->left = new ExpressionTree (arg);
 			}
 			return;
 		}
@@ -1155,9 +1169,11 @@ ExpressionTree::ExpressionTree(string &expr)
 				node = new Node();
 				node->operator_node = true;
 				node->token = { "()", { OP, UNARY, EXPR } };
-				node->left = new ExpressionTree (
-					(string)"(|(" + get_size_of.lexeme + ")|)" + rest
-				);
+				string arg = "(|(";
+				arg += get_size_of.lexeme;
+				arg += (string)")|)";
+				arg += rest;
+				node->left = new ExpressionTree (arg);
 			}
 		}
 		if (t1.lexeme == ".")
@@ -1178,9 +1194,11 @@ ExpressionTree::ExpressionTree(string &expr)
 				node = new Node();
 				node->operator_node = true;
 				node->token = { "()", { OP, UNARY, EXPR } };
-				node->left = new ExpressionTree(
-					(string)"(.(" + to_be_copied.lexeme + "))" + rest
-				);
+				string arg = "(.(";
+				arg += to_be_copied.lexeme;
+				arg += (string)"))";
+				arg += rest;
+				node->left = new ExpressionTree(arg);
 			}
 		}
 		return;

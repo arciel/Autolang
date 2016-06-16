@@ -262,11 +262,7 @@ bool Auto::operator==(Elem &other)				// The overloaded == operator for Automata
 
 string Auto::to_string()					// Returns a string representation of this automaton.
 {
-	string representation = "Automaton at ";
-	char address_c[100];
-	string address_s(_ltoa((long)this, address_c, 16));
-	representation += address_s;
-	return representation;
+	return "Cannot print automata.";
 }
 
 Auto::~Auto()
