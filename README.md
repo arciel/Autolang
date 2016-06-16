@@ -1,6 +1,6 @@
 # An experimental language.
 
-This semester, I'm learning about programming languages and automata theory. In order to gain a better understanding of language design, I decided to make *Autolang*.
+In spring 2016, I was learning about programming languages and automata theory. In order to gain a better understanding of language design, I decided to make *Autolang*. You've somehow stumbled upon Version 1 of it, which I no longer maintain. Thanks for checking it out anyway!
 
 #### Version 1
 
@@ -50,12 +50,6 @@ The result of interpreting this code will be
 
 where 1 represents True, and 0 represents False. 
 
-Comments are preceded by a '#', and can span a single line (though they're not supported as of this commit).
+Comments are preceded by a '#', and can span a single line.
 
-V1 was really an experiment, I just wanted to get my feet wet with syntax analysis and interpretation. I'll put up a Makefile soon, but all files pertaining to it are in the *Files* directory, should be easy to compile the interpreter.
-
-#### Version 2 (wip)
-
-Autolang V2 will be a major departure from V1, moving towards more conventional syntax, and will be decently powerful and definitely Turing complete. It will allow low-level, 'first-order' programs to be written in it.
-
-*Files_V2/Grammar_V2.bnf* is a draft grammar for V2. It covers nearly all of the features, and reading it will give you a good insight into the language's future plans (also helps to work on the implementation better).
+V1 was really an experiment, I just wanted to get my feet wet with syntax analysis and interpretation. For the current face of Autolang, checkout Version 2.
