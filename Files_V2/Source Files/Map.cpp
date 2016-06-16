@@ -71,9 +71,14 @@ Elem * Map::deep_copy()					// Returns a deep_copy of this map (NOTE: Also deep_
 	return deep_map;				// Return the deeply_copied map.
 }
 
+void Map::delete_elems()
+{
+	delete pi_indices, map;				// Delete the mappings and pi_indices.
+}
 
 Elem * Map::operator[](Elem &pre_image)			// Returns the image of the pre-image [L-value].
 {
+	Elem * default_l_val = nullptr;
 	int pre_image_index{ 0 };			// Initialize the pre_image('s)_index to 0.
 	for (auto &elem_p : *domain_s->elems)		// For every (any) element_pointer in the domain set's vector of element_pointers ...
 		if (*elem_p == pre_image)		// ... if the element pointed to by it == the pre_image ...
@@ -82,7 +87,7 @@ Elem * Map::operator[](Elem &pre_image)			// Returns the image of the pre-image 
 			pre_image_index++;		// ... look at the next element_pointer.
 
 	if (pre_image_index == domain_s->cardinality()) // If we didn't find the pre_image in the domain ...
-		return nullptr;				// ... return nullptr.
+		return default_l_val;			// ... return nullptr.
 
 	return (*codomain_s)[(*map)[pre_image_index]];	// Otherwise of course return the image.
 }

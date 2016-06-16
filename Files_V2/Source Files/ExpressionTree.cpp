@@ -1,21 +1,19 @@
 #include "../Header Files/ExpressionTree.h"
-#include <iostream>
 #include <cmath>
+#include <iostream>
+using std::cout;
+using std::endl;
 
 /* Implementations for methods in the classes Token, Node, and ExpressionTree. */
 
 // -----------------------------------------------------<CLASS TOKEN>------------------------------------------//
 
-namespace program_vars 
-{
-	std::unordered_map<string, Elem *> * identify = new std::unordered_map<string, Elem *>();
-}
-
 string token_name[] = 
 {
 	"INT_LIT", "LOGICAL_LIT", "CHAR_LIT", "STRING_LIT", "SET_LIT", "TUPLE_LIT", "LITERAL",
-	"INDEX", "IDENTIFIER", "INT_OP", "CHAR_OP", "SET_OP", "COPY_OP", "OP", "UNARY",
-	"LOGICAL_OP", "STRING_OP", "TUPLE_OP", "MAP_OP", "AUTO_OP", "END", "ERROR", "EXPR" 
+	"INDEX", "IDENTIFIER", "OP", "UNARY", "END", "ERROR", "EXPR","TYPE", "MAPPING_SYMBOL", 
+	"INPUT", "OUTPUT", "IF", "ELSEIF", "ELSE", "WHILE", "DECLARE", "EQUAL_SIGN", "L_BRACE", 
+	"R_BRACE", "QUIT", "DELETE", "DELETE_ELEMS", "MAP_OP", "COLON", "END_WHILE", "END_IF"
 };
 
 string Token::to_string()
@@ -75,64 +73,65 @@ void ExpressionTree::skip_whitespace()
 
 Elem * ExpressionTree::evaluate()
 {
-	if (root->value != nullptr) 
-		return root->value;				// Will be triggered in case of literals and identifiers.
+	if (node->value != nullptr) 
+		return node->value;				// Will be triggered in case of literals and identifiers.
 	
-	if (root->token.types[0] == OP)				// If the root is an op.
+
+	if (node->token.types[0] == OP)				// If the node is an op.
 	{
-		if (root->token.types[1] == UNARY)
+		if (node->token.types.size() > 1 && node->token.types[1] == UNARY)
 		{
-			if (root->token.lexeme == ".")				// Deep_copy operator.
+			if (node->token.lexeme == ".")				// Deep_copy operator.
 			{
-				root->value = root->left->evaluate()->deep_copy();	// Get the deep_copy of the value of the left tree.
+				node->value = node->left->evaluate()->deep_copy();	// Get the deep_copy of the value of the left tree.
 			}
-			else if (root->token.lexeme == "()")
+			else if (node->token.lexeme == "()")
 			{
-				root->value = root->left->evaluate();
+				node->value = node->left->evaluate();
 			}
-			else if (root->token.lexeme == "|")
+			else if (node->token.lexeme == "|")
 			{
-				Elem * get_size_of = root->left->evaluate();
+				Elem * get_size_of = node->left->evaluate();
 				if (get_size_of->type == SET)
 				{
 					Set * get_size_of_set = (Set *)get_size_of;
-					root->value = new Int(get_size_of_set->cardinality());
+					node->value = new Int(get_size_of_set->cardinality());
 				}
 				else if (get_size_of->type == TUPLE)
 				{
 					Tuple * get_size_of_tuple = (Tuple *)get_size_of;
-					root->value = new Int(get_size_of_tuple->size());
+					node->value = new Int(get_size_of_tuple->size());
 				}
 			}
-			else if (root->token.lexeme == "!")
+			else if (node->token.lexeme == "!")
 			{
-				Logical * negate = (Logical *)root->left->evaluate();
-				root->value = new Logical(!negate->elem);
+				Logical * negate = (Logical *)node->left->evaluate();
+				node->value = new Logical(!negate->elem);
 			}
 		}
 		else
 		{
-			if (root->token.lexeme == "V")
+			if (node->token.lexeme == "V")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
 				if (left->type == INT)
 				{
 					Int * l_int = (Int *)left;
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Int(l_int->elem || r_int->elem);
+						node->value = new Int(l_int->elem || r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Int(l_int->elem || r_logical->elem);
+						node->value = new Int(l_int->elem || r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Int(l_int->elem || r_char->elem);
+						node->value = new Int(l_int->elem || r_char->elem);
 					}
 				}
 				else if (left->type == LOGICAL)
@@ -141,17 +140,17 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Logical(l_int->elem || r_int->elem);
+						node->value = new Logical(l_int->elem || r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Logical(l_int->elem || r_logical->elem);
+						node->value = new Logical(l_int->elem || r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Logical(l_int->elem || r_char->elem);
+						node->value = new Logical(l_int->elem || r_char->elem);
 					}
 				}
 				else if (left->type == CHAR)
@@ -160,28 +159,33 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Char(l_int->elem || r_int->elem);
+						node->value = new Char(l_int->elem || r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Char(l_int->elem || r_logical->elem);
+						node->value = new Char(l_int->elem || r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Char(l_int->elem || r_char->elem);
+						node->value = new Char(l_int->elem || r_char->elem);
 					}
 				}
 			}
-			else if (root->token.lexeme == "&")
+			else if (node->token.lexeme == "&")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
 				if (left->type == SET && right->type == SET)
 				{
 					Set * l_set = (Set *)left, *r_set = (Set *)right;
-					root->value = l_set->intersection(*r_set);
+					node->value = l_set->intersection(*r_set);
+				}
+				else if (left->type == AUTO && right->type == AUTO)
+				{
+					Auto * l_auto = (Auto *)left, *r_auto = (Auto *)right;
+					node->value = l_auto->accepts_intersection(r_auto);
 				}
 				else if (left->type == INT)
 				{
@@ -189,17 +193,17 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Int(l_int->elem && r_int->elem);
+						node->value = new Int(l_int->elem && r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Int(l_int->elem && r_logical->elem);
+						node->value = new Int(l_int->elem && r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Int(l_int->elem && r_char->elem);
+						node->value = new Int(l_int->elem && r_char->elem);
 					}
 				}
 				else if (left->type == LOGICAL)
@@ -208,17 +212,17 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Logical(l_int->elem && r_int->elem);
+						node->value = new Logical(l_int->elem && r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Logical(l_int->elem && r_logical->elem);
+						node->value = new Logical(l_int->elem && r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Logical(l_int->elem && r_char->elem);
+						node->value = new Logical(l_int->elem && r_char->elem);
 					}
 				}
 				else if (left->type == CHAR)
@@ -227,129 +231,135 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Char(l_int->elem && r_int->elem);
+						node->value = new Char(l_int->elem && r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Char(l_int->elem && r_logical->elem);
+						node->value = new Char(l_int->elem && r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Char(l_int->elem && r_char->elem);
+						node->value = new Char(l_int->elem && r_char->elem);
 					}
 				}
 			}
-			else if (root->token.lexeme == "==")
+			else if (node->token.lexeme == "==")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
-				root->value = new Logical(*left == *right);
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
+				node->value = new Logical(*left == *right);
 			}
-			else if (root->token.lexeme == "<")
+			else if (node->token.lexeme == "<")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
-				root->value = new Logical(*left < *right);
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
+				node->value = new Logical(*left < *right);
 			}
-			else if (root->token.lexeme == "<=")
+			else if (node->token.lexeme == "<=")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
-				root->value = new Logical((*left < *right) || (*left == *right));
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
+				node->value = new Logical((*left < *right) || (*left == *right));
 			}
-			else if (root->token.lexeme == ">")
+			else if (node->token.lexeme == ">")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
-				root->value = new Logical(!(*left < *right) || (*left == *right));
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
+				node->value = new Logical(!(*left < *right) || (*left == *right));
 			}
-			else if (root->token.lexeme == ">=")
+			else if (node->token.lexeme == ">=")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
-				root->value = new Logical(!(*left < *right));
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
+				node->value = new Logical(!(*left < *right));
 			}
-			else if (root->token.lexeme == "o")
+			else if (node->token.lexeme == "o")
 			{
-				Map * f = (Map *) root->left->evaluate();
-				Map * g = (Map *)root->right->evaluate();
-				root->value = f->composed_with(*g);
+				Map * f = (Map *) node->left->evaluate();
+				Map * g = (Map *)node->right->evaluate();
+				node->value = f->composed_with(*g);
 			}
-			else if (root->token.lexeme == "c")
+			else if (node->token.lexeme == "c")
 			{
-				Set * left  = (Set *) root->left->evaluate();
-				Set * right = (Set *)root->right->evaluate();
-				root->value = new Logical(left->subset_of(*right));
+				Set * left  = (Set *) node->left->evaluate();
+				Set * right = (Set *)node->right->evaluate();
+				node->value = new Logical(left->subset_of(*right));
 			}
-			else if (root->token.lexeme == "x")
+			else if (node->token.lexeme == "x")
 			{
-				Set * left = (Set *)root->left->evaluate();
-				Set * right = (Set *)root->right->evaluate();
-				root->value = left->cartesian_product(*right);
+				Set * left = (Set *)node->left->evaluate();
+				Set * right = (Set *)node->right->evaluate();
+				node->value = left->cartesian_product(*right);
 			}
-			else if (root->token.lexeme == "U")
+			else if (node->token.lexeme == "U")
 			{
-				Set * left = (Set *)root->left->evaluate();
-				Set * right = (Set *)root->right->evaluate();
-				root->value = left->_union(*right);
+				Elem * left = (Set *)node->left->evaluate();
+				Elem * right = (Set *)node->right->evaluate();
+				if (left->type == SET && right->type == SET)
+					node->value = ((Set *)left)->_union(*(Set *)right);
+				else if (left->type == AUTO && right->type == AUTO)
+					node->value = ((Auto*)left)->accepts_union((Auto*)right);
 			}
-			else if (root->token.lexeme == "\\")
+			else if (node->token.lexeme == "\\")
 			{
-				Set * left = (Set *)root->left->evaluate();
-				Set * right = (Set *)root->right->evaluate();
-				root->value = left->exclusion(*right);
+				Elem * left = (Set *)node->left->evaluate();
+				Elem * right = (Set *)node->right->evaluate();
+				if (left->type == SET && right->type == SET)
+					node->value = ((Set *)left)->exclusion(*(Set *)right);
+				else if (left->type == AUTO && right->type == AUTO)
+					node->value = ((Auto*)left)->accepts_exclusively((Auto*)right);
 			}
-			else if (root->token.lexeme == "[]")
+			else if (node->token.lexeme == "[]")
 			{
-				Elem * elem = root->left->evaluate();
-				Elem * query = root->right->evaluate();
+				Elem * elem = node->left->evaluate();
+				Elem * query = node->right->evaluate();
 				if (elem->type == SET && query->type == INT)
 				{
 					Set * e = (Set *)elem;
 					Int * q = (Int *)query;
-					root->value = (*e)[q->elem];
+					node->value = (*e)[q->elem];
 				}
 				else if (elem->type == TUPLE && query->type == INT)
 				{
 					Tuple * e = (Tuple *)elem;
 					Int * q = (Int *)query;
-					root->value = (*e)[q->elem];
+					node->value = (*e)[q->elem];
 				}
 				else if (elem->type == MAP)
 				{
 					Map * map = (Map *)elem;
-					root->value = (*map)[*query];
+					node->value = (*map)[*query];
 				}
 				else if (elem->type == AUTO && query->type == STRING)
 				{
 					Auto * auto_ = (Auto *)elem;
 					String * q = (String *)query;
-					root->value = (*auto_)[*q];
+					node->value = (*auto_)[*q];
 				}
 			}
-			else if (root->token.lexeme == "+")
+			else if (node->token.lexeme == "+")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
 				if (left->type == INT)
 				{
 					Int * l_int = (Int *)left;
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Int(l_int->elem + r_int->elem);
+						node->value = new Int(l_int->elem + r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Int(l_int->elem + r_logical->elem);
+						node->value = new Int(l_int->elem + r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Int(l_int->elem + r_char->elem);
+						node->value = new Int(l_int->elem + r_char->elem);
 					}
 				}
 				else if (left->type == LOGICAL)
@@ -358,17 +368,17 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Logical(l_int->elem + r_int->elem);
+						node->value = new Logical(l_int->elem + r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Logical(l_int->elem + r_logical->elem);
+						node->value = new Logical(l_int->elem + r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Logical(l_int->elem + r_char->elem);
+						node->value = new Logical(l_int->elem + r_char->elem);
 					}
 				}
 				else if (left->type == CHAR)
@@ -377,41 +387,49 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Char(l_int->elem + r_int->elem);
+						node->value = new Char(l_int->elem + r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Char(l_int->elem + r_logical->elem);
+						node->value = new Char(l_int->elem + r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Char(l_int->elem + r_char->elem);
+						node->value = new Char(l_int->elem + r_char->elem);
 					}
 				}
+				else if (left->type == STRING)
+				{
+					if (right->type == STRING)
+						return new String(((String*)left)->elem + ((String*)right)->elem);
+
+					else if (right->type == CHAR)
+						return new String(((String*)left)->elem + ((Char*)right)->elem);
+				}
 			}
-			else if (root->token.lexeme == "-")
+			else if (node->token.lexeme == "-")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
 				if (left->type == INT)
 				{
 					Int * l_int = (Int *)left;
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Int(l_int->elem - r_int->elem);
+						node->value = new Int(l_int->elem - r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Int(l_int->elem - r_logical->elem);
+						node->value = new Int(l_int->elem - r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Int(l_int->elem - r_char->elem);
+						node->value = new Int(l_int->elem - r_char->elem);
 					}
 				}
 				else if (left->type == LOGICAL)
@@ -420,17 +438,17 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Logical(l_int->elem - r_int->elem);
+						node->value = new Logical(l_int->elem - r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Logical(l_int->elem - r_logical->elem);
+						node->value = new Logical(l_int->elem - r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Logical(l_int->elem - r_char->elem);
+						node->value = new Logical(l_int->elem - r_char->elem);
 					}
 				}
 				else if (left->type == CHAR)
@@ -439,41 +457,41 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Char(l_int->elem - r_int->elem);
+						node->value = new Char(l_int->elem - r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Char(l_int->elem - r_logical->elem);
+						node->value = new Char(l_int->elem - r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Char(l_int->elem - r_char->elem);
+						node->value = new Char(l_int->elem - r_char->elem);
 					}
 				}
 			}
-			else if (root->token.lexeme == "*")
+			else if (node->token.lexeme == "*")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
 				if (left->type == INT)
 				{
 					Int * l_int = (Int *)left;
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Int(l_int->elem * r_int->elem);
+						node->value = new Int(l_int->elem * r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Int(l_int->elem * r_logical->elem);
+						node->value = new Int(l_int->elem * r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Int(l_int->elem * r_char->elem);
+						node->value = new Int(l_int->elem * r_char->elem);
 					}
 				}
 				else if (left->type == LOGICAL)
@@ -482,17 +500,17 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Logical(l_int->elem * r_int->elem);
+						node->value = new Logical(l_int->elem * r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Logical(l_int->elem * r_logical->elem);
+						node->value = new Logical(l_int->elem * r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Logical(l_int->elem * r_char->elem);
+						node->value = new Logical(l_int->elem * r_char->elem);
 					}
 				}
 				else if (left->type == CHAR)
@@ -501,41 +519,41 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Char(l_int->elem * r_int->elem);
+						node->value = new Char(l_int->elem * r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Char(l_int->elem * r_logical->elem);
+						node->value = new Char(l_int->elem * r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Char(l_int->elem * r_char->elem);
+						node->value = new Char(l_int->elem * r_char->elem);
 					}
 				}
 			}
-			else if (root->token.lexeme == "/")
+			else if (node->token.lexeme == "/")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
 				if (left->type == INT)
 				{
 					Int * l_int = (Int *)left;
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Int(l_int->elem / r_int->elem);
+						node->value = new Int(l_int->elem / r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Int(l_int->elem / r_logical->elem);
+						node->value = new Int(l_int->elem / r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Int(l_int->elem / r_char->elem);
+						node->value = new Int(l_int->elem / r_char->elem);
 					}
 				}
 				else if (left->type == LOGICAL)
@@ -544,17 +562,17 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Logical(l_int->elem / r_int->elem);
+						node->value = new Logical(l_int->elem / r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Logical(l_int->elem / r_logical->elem);
+						node->value = new Logical(l_int->elem / r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Logical(l_int->elem / r_char->elem);
+						node->value = new Logical(l_int->elem / r_char->elem);
 					}
 				}
 				else if (left->type == CHAR)
@@ -563,41 +581,41 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Char(l_int->elem / r_int->elem);
+						node->value = new Char(l_int->elem / r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Char(l_int->elem / r_logical->elem);
+						node->value = new Char(l_int->elem / r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Char(l_int->elem / r_char->elem);
+						node->value = new Char(l_int->elem / r_char->elem);
 					}
 				}
 			}
-			else if (root->token.lexeme == "^")
+			else if (node->token.lexeme == "^")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
 				if (left->type == INT)
 				{
 					Int * l_int = (Int *)left;
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Int(pow(l_int->elem, r_int->elem));
+						node->value = new Int(pow(l_int->elem, r_int->elem));
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Int(pow(l_int->elem, r_logical->elem));
+						node->value = new Int(pow(l_int->elem, r_logical->elem));
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Int(pow(l_int->elem, r_char->elem));
+						node->value = new Int(pow(l_int->elem, r_char->elem));
 					}
 				}
 				else if (left->type == LOGICAL)
@@ -606,17 +624,17 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Logical(pow(l_int->elem, r_int->elem));
+						node->value = new Logical(pow(l_int->elem, r_int->elem));
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Logical(pow(l_int->elem, r_logical->elem));
+						node->value = new Logical(pow(l_int->elem, r_logical->elem));
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Logical(pow(l_int->elem, r_char->elem));
+						node->value = new Logical(pow(l_int->elem, r_char->elem));
 					}
 				}
 				else if (left->type == CHAR)
@@ -625,41 +643,41 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Char(pow(l_int->elem, r_int->elem));
+						node->value = new Char(pow(l_int->elem, r_int->elem));
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Char(pow(l_int->elem, r_logical->elem));
+						node->value = new Char(pow(l_int->elem, r_logical->elem));
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Char(pow(l_int->elem, r_char->elem));
+						node->value = new Char(pow(l_int->elem, r_char->elem));
 					}
 				}
 			}
-			else if (root->token.lexeme == "%")
+			else if (node->token.lexeme == "%")
 			{
-				Elem * left = root->left->evaluate();
-				Elem * right = root->right->evaluate();
+				Elem * left = node->left->evaluate();
+				Elem * right = node->right->evaluate();
 				if (left->type == INT)
 				{
 					Int * l_int = (Int *)left;
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Int(l_int->elem % r_int->elem);
+						node->value = new Int(l_int->elem % r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Int(l_int->elem % r_logical->elem);
+						node->value = new Int(l_int->elem % r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Int(l_int->elem % r_char->elem);
+						node->value = new Int(l_int->elem % r_char->elem);
 					}
 				}
 				else if (left->type == LOGICAL)
@@ -668,17 +686,17 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Logical(l_int->elem % r_int->elem);
+						node->value = new Logical(l_int->elem % r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Logical(l_int->elem % r_logical->elem);
+						node->value = new Logical(l_int->elem % r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Logical(l_int->elem % r_char->elem);
+						node->value = new Logical(l_int->elem % r_char->elem);
 					}
 				}
 				else if (left->type == CHAR)
@@ -687,26 +705,26 @@ Elem * ExpressionTree::evaluate()
 					if (right->type == INT)
 					{
 						Int *r_int = (Int *)right;
-						root->value = new Char(l_int->elem % r_int->elem);
+						node->value = new Char(l_int->elem % r_int->elem);
 					}
 					else if (right->type == LOGICAL)
 					{
 						Logical *r_logical = (Logical *)right;
-						root->value = new Char(l_int->elem % r_logical->elem);
+						node->value = new Char(l_int->elem % r_logical->elem);
 					}
 					else if (right->type == CHAR)
 					{
 						Char *r_char = (Char *)right;
-						root->value = new Char(l_int->elem % r_char->elem);
+						node->value = new Char(l_int->elem % r_char->elem);
 					}
 				}
 			}
 		}
 	}
-	return root->value;
+	return node->value;
 }
 
-Token ExpressionTree::get_next_token()
+Token ExpressionTree::get_next_token()				// The limited lexical analyzer to parse only expressions.
 {
 	skip_whitespace();					// Skip whitespace, of course.
 
@@ -716,13 +734,13 @@ Token ExpressionTree::get_next_token()
 	else if (expr[current_index] == '|')			// Cardinality op.
 	{
 		current_index++;
-		return{ "|", {OP, UNARY, SET_OP, STRING_OP, TUPLE_OP} };
+		return{ "|", {OP, UNARY} };
 	}
 
 	else if (expr[current_index] == '.')
 	{
 		current_index++;
-		return{ ".", { OP, UNARY, COPY_OP } };
+		return{ ".", { OP, UNARY } };
 	}
 
 	//-----------------------------------------<LOGICAL OPS>-----------------------------------------------//
@@ -730,19 +748,19 @@ Token ExpressionTree::get_next_token()
 	else if (expr[current_index] == '!')
 	{
 		current_index++;
-		return{ "!", { OP, UNARY, LOGICAL_OP } };
+		return{ "!", { OP, UNARY } };
 	}
 
 	else if (expr[current_index] == 'V')
 	{
 		current_index++;
-		return{ "V", { OP, LOGICAL_OP } };
+		return{ "V", { OP } };
 	}
 
 	else if (expr[current_index] == '=' && ((current_index + 1) < expr.size()) && expr[current_index + 1] == '=')
 	{
 		current_index += 2;
-		return{ "==", { OP, LOGICAL_OP } };
+		return{ "==", { OP } };
 	}
 
 	//----------------------------------------</LOGICAL OPS>-----------------------------------------------//
@@ -752,7 +770,7 @@ Token ExpressionTree::get_next_token()
 	else if (expr[current_index] == 'o')			// Map compose op.
 	{
 		current_index++;
-		return{ "o", { OP, MAP_OP } };
+		return{ "o", { OP } };
 	}
 
 	//---------------------------------------------</MAP OP>-----------------------------------------------//
@@ -761,23 +779,23 @@ Token ExpressionTree::get_next_token()
 
 	else if (expr[current_index] == 'c')			// Subset op.
 	{
-		current_index++; return{ "c", { OP, SET_OP } };
+		current_index++; return{ "c", { OP } };
 	}
 	else if (expr[current_index] == 'x')			// Cartesian product op.
 	{
-		current_index++; return{ "x", { OP, SET_OP } };
+		current_index++; return{ "x", { OP } };
 	}
 	else if (expr[current_index] == 'U')			// Union op.
 	{
-		current_index++; return{ "U", { OP, SET_OP, AUTO_OP } };
+		current_index++; return{ "U", { OP } };
 	}
 	else if (expr[current_index] == '&')			// Intersection (AND) op.
 	{
-		current_index++; return{ "&", { OP, SET_OP, AUTO_OP, LOGICAL_OP } };
+		current_index++; return{ "&", { OP } };
 	}
 	else if (expr[current_index] == '\\')			// Exclusion op.
 	{
-		current_index++; return{ "\\", { OP, SET_OP, AUTO_OP } };
+		current_index++; return{ "\\", { OP } };
 	}
 
 	//---------------------------------------------</SET OP>----------------------------------------------//
@@ -821,107 +839,140 @@ Token ExpressionTree::get_next_token()
 			current_index += 3;
 			return{ expr.substr(j, 3), { LITERAL, CHAR_LIT } };
 		}
-		else if (current_index + 3 < expr.size() && expr[current_index + 1] == '\\' && expr[current_index + 3] == '\'')
+		else if (current_index + 4 < expr.size() && expr[current_index + 1] == '\\' && expr[current_index + 4] == '\'')
 		{
 			int j = current_index;		
-			current_index += 4;	
-			return{ expr.substr(j, 4), { LITERAL, CHAR_LIT } };
+			current_index += 5;	
+			return{ expr.substr(j, 5), { LITERAL, CHAR_LIT } };
 		}
 		else return{ "", {ERROR} };
 	}
-	else if (expr[current_index] == '"')			// String literals.
+	else if (expr[current_index] == '`')			// String literals.
 	{
 		int i;
-		for (i = current_index + 1; i < expr.size(); i++)	// We'll look for the closing quote.
-			if (expr[i] == '"' && expr[i - 1] != '\\')	// When we find a closing quote that is not preceded by an escape '\',
+		for (i = current_index + 1; i < expr.size(); i++)	// We'll look for the closing backtick.
+			if (expr[i] == '`' && (i == 0 || expr[i - 1] != '\\'))	// When we find a closing backtick. that is not preceded by an escape '\',
 				break;					// break.
 		int j = current_index;
 		current_index = i + 1;
-		return{ expr.substr(j, current_index-j), { LITERAL, STRING_LIT } };
+		return{ expr.substr(j, current_index - j), { LITERAL, STRING_LIT } };
 	}
 	else if (expr[current_index] == '{')			// Set literals.
 	{
-		int i, level = 0;				// We're going to look for closing brace '}' at level 0.
-		bool closingbrace_found = false;
-		for (i = current_index + 1; i < expr.size(); i++) 
+		int level = 0, i;
+		bool in_string = false, closing_brace_found = false;
+		for (i = current_index + 1; i < expr.size(); i++)
 		{
-			if (expr[i] == '}' && level == 0)	// Aha, closing brace found.
+			if (expr[i] == '}' && level == 0 && (i == 0 || expr[i - 1] != '\\'))
 			{
-				closingbrace_found = true;
+				closing_brace_found = true;
 				break;
 			}
-			else if (expr[i] == '(' || expr[i] == '{' || expr[i] == '[') level++;
-			else if (expr[i] == ')' || expr[i] == '}' || expr[i] == ']') level--;	
+			if (((expr[i] == '`' && !in_string) || expr[i] == '{' || expr[i] == '(' || expr[i] == '[')
+				&& (i == 0 || expr[i - 1] != '\\')) {
+				level++;
+				if (expr[i] == '`' && !in_string) in_string = true;
+			}
+			else if (((expr[i] == '`' && in_string) || expr[i] == '}' || expr[i] == ')' || expr[i] == ']')
+				&& (i == 0 || expr[i - 1] != '\\')) {
+				level--;
+				if (expr[i] == '`' && in_string) in_string = false;
+			}
 		}
-		if (!closingbrace_found) return{ "", { ERROR } };
+		if (!closing_brace_found) { return{ "", {ERROR} }; }
 		else
 		{
 			int j = current_index;
-			current_index = i + 1;	// The next lexeme starts after '}'
-			return{ expr.substr(j, i - j + 1), { LITERAL, SET_LIT } };
+			current_index = i + 1;
+			return{ expr.substr(j, i - j + 1), {LITERAL, SET_LIT} };
 		}
 	}
 	else if (expr[current_index] == '(')	  		// Now depending on the current character, we return a token.
 	{					  		// It can either be (<expr>) or a tuple literal.
-		bool is_tuple = false;		  		// Let us assume it is not a tuple.
-		int i, level = 0;			  		// If we find another '(', we increase the level, and decrease if ')'.
-		for (i = current_index + 1; i < expr.size(); i++)
-			if (expr[i] == '(' || expr[i] == '{' || expr[i] == '[') level++;
-			else if (expr[i] == ')' || expr[i] == '}' || expr[i] == ']') level--;
-			else if (expr[i] == ',' && level == 0)	// If we find a ',' at level 0, it means that it is outside of any ...
-			{					// ... parentheses except the one in the 'case', and its counterpart.
-				is_tuple = true;		// Therefore, the lexeme that we're looking at is most certainly a tuple.
-				break;				// We can stop looking now.
-			}						
-
-		level = 0;					// Now, either way, we need to look for the counterpart ')'.
-		bool counterpart_found = false;
+		int level = 0, i;
+		bool in_string = false, is_tuple = false, closing_paren_found = false;;
 		for (i = current_index + 1; i < expr.size(); i++)
 		{
-			if (expr[i] == ')' && level == 0)	// If we find a ')' at level 0, it has got to be the counterpart ...
-			{					// ... because it is outside of any other parentheses.
-				counterpart_found = true;	// So found it.
-				break;				// We can stop looking now.
+			if (((expr[i] == '`' && !in_string) || expr[i] == '{' || expr[i] == '(' || expr[i] == '[')
+				&& (i == 0 || expr[i - 1] != '\\')) {
+				level++;
+				if (expr[i] == '`' && !in_string) in_string = true;
 			}
-			else if (expr[i] == '(' || expr[i] == '{' || expr[i] == '[') level++;
-			else if (expr[i] == ')' || expr[i] == '}' || expr[i] == ']') level--;
-		}
-		if (!counterpart_found) return{ "", {ERROR} };	// If a counterpart is not found, return an ERROR token.
-		int j = current_index;
-		if (is_tuple) 
+			else if (((expr[i] == '`' && in_string) || expr[i] == '}' || expr[i] == ')' || expr[i] == ']')
+				&& (i == 0 || expr[i - 1] != '\\')) {
+				level--;
+				if (expr[i] == '`' && in_string) in_string = false;
+			}
+			else if (expr[i] == ',' && level == 0)		// It's a tuple if a comma exists at level 0.
+			{
+				is_tuple = true;
+				break;
+			}
+		}			
+		level = 0;						// We'll look for the closing ')' now.
+		in_string = false;
+		for (i = current_index + 1; i < expr.size(); i++)
 		{
-			current_index = i + 1;			// The next lexeme starts after ')'            
-			return{ expr.substr(j, i - j + 1), {LITERAL, TUPLE_LIT} };
+			if (expr[i] == ')' && level == 0 && (i == 0 || expr[i - 1] != '\\'))
+			{
+				closing_paren_found = true;
+				break;
+			}
+			if (((expr[i] == '`' && !in_string) || expr[i] == '{' || expr[i] == '(' || expr[i] == '[')
+				&& (i == 0 || expr[i - 1] != '\\')) {
+				level++;
+				if (expr[i] == '`' && !in_string) in_string = true;
+			}
+			else if (((expr[i] == '`' && in_string) || expr[i] == '}' || expr[i] == ')' || expr[i] == ']')
+				&& (i == 0 || expr[i - 1] != '\\')) {
+				level--;
+				if (expr[i] == '`' && in_string) in_string = false;
+			}
+		}
+		if (!closing_paren_found) return{ "", {ERROR} };
+		else if (is_tuple)
+		{
+			int j = current_index;
+			current_index = i + 1;
+			return{ expr.substr(j, i - j + 1), { LITERAL, TUPLE_LIT } };
 		}
 		else
 		{
-			current_index = i + 1;			// The next lexeme starts after ')'            
-			return{ expr.substr(j + 1, i - j - 1), {EXPR} };
+			int j = current_index;
+			current_index = i + 1;
+			return{ expr.substr(j + 1, i - j - 1), { EXPR } };
 		}
 	}
-
 	//-------------------------------------------</LITERALS>----------------------------------------------//
 
 	else if (expr[current_index] == '[')
 	{
 		int i, level = 0;				// We're going to look for closing bracket ']' at level 0.
-		bool closingbracket_found = false;
+		bool closingbracket_found = false, in_string = false;
 		for (i = current_index + 1; i < expr.size(); i++)
 		{
-			if (expr[i] == ']' && level == 0)	// Aha, closing bracket found.
+			if (expr[i] == ']' && level == 0 && (i == 0 || expr[i - 1] != '\\'))
 			{
 				closingbracket_found = true;
 				break;
 			}
-			else if (expr[i] == '[') level++;	// We're inside some other set, which is {an element of}^+ the one we're parsing.
-			else if (expr[i] == ']') level--;	// We jump out one level.
+			if (((expr[i] == '`' && !in_string) || expr[i] == '{' || expr[i] == '(' || expr[i] == '[')
+				&& (i == 0 || expr[i - 1] != '\\')) {
+				level++;
+				if (expr[i] == '`' && !in_string) in_string = true;
+			}
+			else if (((expr[i] == '`' && in_string) || expr[i] == '}' || expr[i] == ')' || expr[i] == ']')
+				&& (i == 0 || expr[i - 1] != '\\')) {
+				level--;
+				if (expr[i] == '`' && in_string) in_string = false;
+			}
 		}
 		if (!closingbracket_found) return{ "", { ERROR } };
 		else
 		{
 			int j = current_index;
 			current_index = i + 1;	// The next lexeme starts after ']'
-			return{ expr.substr(j+1, i - j - 1), { OP, INDEX } };
+			return{ expr.substr(j + 1, i - j - 1), { INDEX } };
 		}
 	}
 	
@@ -939,45 +990,45 @@ Token ExpressionTree::get_next_token()
 	else if (expr[current_index] == '+')
 	{
 		current_index++;
-		return{ "+", { OP, INT_OP, CHAR_OP, STRING_OP } };
+		return{ "+", { OP } };
 	}
 
 	else if (expr[current_index] == '-')
 	{
 		current_index++;
-		return{ "-", { OP, INT_OP, CHAR_OP, STRING_OP } };
+		return{ "-", { OP } };
 	}
 	else if (expr[current_index] == '*')
 	{
 		current_index++;
-		return{ "*", { OP, INT_OP, CHAR_OP } };
+		return{ "*", { OP } };
 	}
 	else if (expr[current_index] == '/')
 	{
 		current_index++;
-		return{ "/", { OP, INT_OP, CHAR_OP } };
+		return{ "/", { OP } };
 	}
 	else if (expr[current_index] == '^')
 	{
 		current_index++;
-		return{ "^", { OP, INT_OP, CHAR_OP } };
+		return{ "^", { OP } };
 	}
 	else if (expr[current_index] == '%')
 	{
 		current_index++;
-		return{ "%", { OP, INT_OP, CHAR_OP } };
+		return{ "%", { OP } };
 	}
 	else if (expr[current_index] == '<')
 	{
 		if ((current_index + 1) < expr.size() && expr[current_index + 1] == '=')
 		{
 			current_index += 2;
-			return{ "<=", { OP, INT_OP, CHAR_OP, STRING_OP } };
+			return{ "<=", { OP } };
 		}
 		else
 		{
 			current_index++;
-			return{ "<", { OP, INT_OP, CHAR_OP, STRING_OP } };
+			return{ "<", { OP } };
 		}
 	}
 
@@ -986,12 +1037,12 @@ Token ExpressionTree::get_next_token()
 		if ((current_index + 1) < expr.size() && expr[current_index + 1] == '=')
 		{
 			current_index += 2;
-			return{ ">=", { OP, INT_OP, CHAR_OP, STRING_OP } };
+			return{ ">=", { OP } };
 		}
 		else
 		{
 			current_index++;
-			return{ ">", { OP, INT_OP, CHAR_OP, STRING_OP } };
+			return{ ">", { OP } };
 		}
 	}
 
@@ -1017,7 +1068,7 @@ ExpressionTree::ExpressionTree(string &expr)
 	Token t1 = get_next_token();
 	if (t1.types[0] == END)					// End of recursion.
 	{
-		root = nullptr;
+		node = nullptr;
 		return;
 	}
 
@@ -1026,11 +1077,11 @@ ExpressionTree::ExpressionTree(string &expr)
 	if (t2.types[0] == OP)					// If we have <expr> <op> <expr>
 	{
 		string rest = expr.substr(current_index, expr.size() - current_index);
-		root = new Node();
-		root->operator_node = true;
-		root->token = t2;
-		root->left = new ExpressionTree(t1.lexeme);
-		root->right = new ExpressionTree(rest);
+		node = new Node();
+		node->operator_node = true;
+		node->token = t2;
+		node->left = new ExpressionTree(t1.lexeme);
+		node->right = new ExpressionTree(rest);
 		return;
 	}
 
@@ -1039,18 +1090,18 @@ ExpressionTree::ExpressionTree(string &expr)
 		string rest = expr.substr(current_index, expr.size() - current_index);
 		if (rest == "")
 		{
-			root = new Node();
-			root->operator_node = true;
-			root->token = { "[]", { OP, INDEX } };
-			root->left = new ExpressionTree(t1.lexeme);
-			root->right = new ExpressionTree(t2.lexeme);
+			node = new Node();
+			node->operator_node = true;
+			node->token = { "[]", { OP, INDEX } };
+			node->left = new ExpressionTree(t1.lexeme);
+			node->right = new ExpressionTree(t2.lexeme);
 		}
 		else
 		{
-			root = new Node();
-			root->operator_node = true;
-			root->token = { "()", { OP, UNARY, EXPR } };
-			root->left = new ExpressionTree((string)"((" + t1.lexeme + ")" + "[" + t2.lexeme + "]" + ")");
+			node = new Node();
+			node->operator_node = true;
+			node->token = { "()", { OP, UNARY, EXPR } };
+			node->left = new ExpressionTree((string)"((" + t1.lexeme + ")" + "[" + t2.lexeme + "]" + ")");
 		}
 		return;
 	}
@@ -1069,17 +1120,17 @@ ExpressionTree::ExpressionTree(string &expr)
 			};
 			if (rest == "") 					// rest == "" implies we're doing a primitive negation.
 			{
-				root = new Node();					
-				root->operator_node = true;
-				root->token = t1;
-				root->left = new ExpressionTree(to_be_negated.lexeme);
+				node = new Node();					
+				node->operator_node = true;
+				node->token = t1;
+				node->left = new ExpressionTree(to_be_negated.lexeme);
 			}
 			else 
 			{
-				root = new Node();					 
-				root->operator_node = true;
-				root->token = { "()", {OP, UNARY, EXPR} };
-				root->left = new ExpressionTree (
+				node = new Node();					 
+				node->operator_node = true;
+				node->token = { "()", {OP, UNARY, EXPR} };
+				node->left = new ExpressionTree (
 					(string)"(!(" + to_be_negated.lexeme + "))" + rest
 				);
 			}
@@ -1094,17 +1145,17 @@ ExpressionTree::ExpressionTree(string &expr)
 			};
 			if (rest == "") 				// rest == "" implies we're doing a primitive get_size().
 			{
-				root = new Node();
-				root->operator_node = true;
-				root->token = t1;
-				root->left = new ExpressionTree(get_size_of.lexeme);
+				node = new Node();
+				node->operator_node = true;
+				node->token = t1;
+				node->left = new ExpressionTree(get_size_of.lexeme);
 			}
 			else
 			{
-				root = new Node();
-				root->operator_node = true;
-				root->token = { "()", { OP, UNARY, EXPR } };
-				root->left = new ExpressionTree (
+				node = new Node();
+				node->operator_node = true;
+				node->token = { "()", { OP, UNARY, EXPR } };
+				node->left = new ExpressionTree (
 					(string)"(|(" + get_size_of.lexeme + ")|)" + rest
 				);
 			}
@@ -1117,17 +1168,17 @@ ExpressionTree::ExpressionTree(string &expr)
 			};
 			if (rest == "") 						// rest == "" implies we're doing basic deep_copy().
 			{
-				root = new Node();
-				root->operator_node = true;
-				root->token = t1;
-				root->left = new ExpressionTree(to_be_copied.lexeme);
+				node = new Node();
+				node->operator_node = true;
+				node->token = t1;
+				node->left = new ExpressionTree(to_be_copied.lexeme);
 			}
 			else
 			{
-				root = new Node();
-				root->operator_node = true;
-				root->token = { "()", { OP, UNARY, EXPR } };
-				root->left = new ExpressionTree(
+				node = new Node();
+				node->operator_node = true;
+				node->token = { "()", { OP, UNARY, EXPR } };
+				node->left = new ExpressionTree(
 					(string)"(.(" + to_be_copied.lexeme + "))" + rest
 				);
 			}
@@ -1139,32 +1190,48 @@ ExpressionTree::ExpressionTree(string &expr)
 	 */ 
 	if (t1.types[0] == EXPR)							
 	{
-		root = new Node();				// Make a root node to hold the operator.
-		root->operator_node = true;			// Mark it as an operator node.
-		root->token = Token{ "()", {OP, UNARY, EXPR} }; // Let it hold the token. 
-		root->left = new ExpressionTree(t1.lexeme);	// Let the left parse the <expr> in (<expr>).
+		node = new Node();				// Make a node node to hold the operator.
+		node->operator_node = true;			// Mark it as an operator node.
+		node->token = Token{ "()", {OP, UNARY, EXPR} }; // Let it hold the token. 
+		node->left = new ExpressionTree(t1.lexeme);	// Let the left parse the <expr> in (<expr>).
 		return;
 	}
 
 	if (t1.types[0] == IDENTIFIER)
 	{
-		root = new Node();
-		root->operator_node = false;
-		root->token = t1;
-		root->value = (*program_vars::identify)[t1.lexeme];
+		node = new Node();
+		node->operator_node = false;
+		node->token = t1;
+		node->value = (*program_vars::identify)[t1.lexeme];
 		return;
 	}
 
 	if (t1.types[0] == LITERAL)
 	{
-		root = new Node();
-		root->operator_node = false;
-		root->token = t1;
-		root->value = root->parse_literal();
+		node = new Node();
+		node->operator_node = false;
+		node->token = t1;
+		node->value = node->parse_literal();
 		return;
 	}
 	
 	// By now we've exhausted all the cases where a check was necessary on the first token.
+}
+
+ExpressionTree::ExpressionTree(string &expr, int is_root) : ExpressionTree(expr)
+{
+	this->is_root = true;
+}
+
+ExpressionTree::~ExpressionTree()
+{
+	if (!this->is_root)
+		delete node;
+	else
+	{
+		node->at_root = true;
+		delete node;
+	}
 }
 
 // -------------------------------------------------<CLASS EXPRESSIONTREE>--------------------------------------//

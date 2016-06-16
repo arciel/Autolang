@@ -1,20 +1,18 @@
 #ifndef EXPRESSION_TREE_H            
-#define EXPRESSION_TREE_H            
+#define EXPRESSION_TREE_H           
+
+#define ROOT 27			// Every expression tree that we explicitly make here will have this as argument as well. 
                                      
 #include "ProgramVars.h"
 #include "Auto.h"
-#include <vector>
-                                     
-using std::string;
-using std::vector;
 
 enum Token_type 
 { 
 	INT_LIT, LOGICAL_LIT, CHAR_LIT, STRING_LIT, SET_LIT, TUPLE_LIT, LITERAL,
-	INDEX, IDENTIFIER, INT_OP, CHAR_OP, SET_OP, COPY_OP, OP, UNARY,
-	LOGICAL_OP, STRING_OP, TUPLE_OP, MAP_OP, AUTO_OP, END, ERROR, EXPR
+	INDEX, IDENTIFIER, OP, UNARY, END, ERROR, EXPR, TYPE, MAPPING_SYMBOL,
+	INPUT, PRINT, IF, ELSEIF, ELSE, WHILE, DECLARE, EQUAL_SIGN, L_BRACE, 
+	R_BRACE, QUIT, DELETE, DELETE_ELEMS, MAP_OP, COLON, END_WHILE, END_IF
 };
-
 
 class Token
 {
@@ -32,6 +30,7 @@ public:
 	Token token; 
 	Elem * value;			// Every node in the expression tree will have a value based on its token.
 	bool operator_node;		// To be set to true if the lexeme in the unit is an OP.
+	bool at_root;			// Boolean to determine if the current root is at the root of the expression tree.
 	ExpressionTree *left, *right;
 
 	Node() { left = nullptr; right = nullptr; operator_node = false; value = nullptr; }
@@ -42,7 +41,7 @@ public:
 	{
 		if (left != nullptr) delete left; 
 		if (right != nullptr) delete right;
-		if (/*token.types[0] == LITERAL &&*/ value != nullptr) delete value;
+		if (token.types[0] == LITERAL && !at_root) delete value;
 	}
 };
 
@@ -51,14 +50,14 @@ class ExpressionTree
 public:
 	string expr;			// The expression that the tree is going to parse.
 	int current_index;		// The current index into the expression_string.
-	Node * root;			// The root tree of the expression.
-
+	Node * node;			// The root tree of the expression.
+	bool is_root;			// Tells us whether the tree is the one that performs the final operation.
 	void skip_whitespace();		// Skips whitespace in the expression.
-
 	ExpressionTree(string &);	// Construct the tree given the expression.
+	ExpressionTree(string &, int);	// Construct the tree given the expression, and mark it the root also.
 	Elem * evaluate();		// Will evaluate the expression and return the result (Elem * in the root).
 	Token get_next_token();		// The lexical analyzer (lexer) for the expression.
-	~ExpressionTree(){delete root;} // Will think about this later.
+	~ExpressionTree();		 // Will think about this later.
 };
 
 
