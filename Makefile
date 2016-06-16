@@ -35,4 +35,4 @@ Interpreter.o : $(SOURCE)Interpreter.cpp $(HEADER)ExpressionTree.h
 	$(CC) -c $(FLAGS) $(SOURCE)Interpreter.cpp
 
 clean : 
-	rm *.o auto
+	rm $(OBJS)
