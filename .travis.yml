@@ -1,4 +1,11 @@
-sudo: required
+addons:
+    apt:
+        sources:
+            - llvm-toolchain-precise
+            - ubuntu-toolchain-r-test
+        packages:
+            - g++-5
+            - gcc-5
 
 language: cpp
 
@@ -6,8 +13,7 @@ compiler:
 	- gcc
 
 install:
-	- if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.8; fi
-	- if [ "$CXX" = "g++" ]; then export CXX=g++-4.8"; fi
+	- if [ "$CXX" = "g++" ]; then export CXX="g++-5"; fi
 
 script: 
 	- make
