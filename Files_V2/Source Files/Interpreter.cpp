@@ -1,14 +1,12 @@
 #include "../Header Files/ExpressionTree.h"
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <queue>
 
 using std::cout;
 using std::cin;
 using std::endl;
 using std::istream;
-using std::queue;
 using std::ios;
 
 unordered_map<string, Elem *> * program_vars::identify = new unordered_map<string, Elem *> { { "__prompt__", new String(">>> ") } };	
@@ -17,12 +15,13 @@ unordered_map<string, Elem *> * program_vars::identify = new unordered_map<strin
 using program_vars::identify;
 
 Token current_token;		// The current token we're looking at. 
-queue<Token> tokens;		// A queue of tokens to help the get_next_token stream. 
 istream * program;		// Stream of text input for the interpreter.
 int line_num = 1;		// Line number that we're looking at right now.
+bool read_right_expr = false;	// Notes whether or not you're reading an expression on the right side of an '=' sign.
+bool read_left_expr = false;	// Notes whether or not you're reading an expression on the right side of an '=' sign.
+bool read_mapdom_expr = false;	// Notes whether or not you're reading an expression in the domain of the map (left of '-->' sign).
 
-Token get_next_token();		// Both of these together ...
-Token peek_next_token();	// ... make up the lexer.
+Token get_next_token();		// Lexer.
 void parse_program();		// Parse the program.
 void parse_statement();		// Parse a statement.
 void parse_declaration();	// Parse a declaration.
@@ -34,8 +33,6 @@ void parse_mapping(string &);	// Parse a single mapping.
 void parse_if();		// Parse an if condition.
 void parse_while();		// Parse a while loop.
 void parse_delete();		// Parse a delete command.
-void parse_delete_elems();	// Parse a delete_elems command.
-void parse_expression();	// Parse an expression.
 void trim(string &);		// Trim a string (*sigh*).
 void remove_comment(string&);   // Removes the comment at the end of the line.
 bool identifier(string &);	// Returns true if a string is an identifier.
@@ -43,85 +40,94 @@ void raise_error(const char *);	// Raises an error and quits the program.
 bool all_spaces(string &);	// Returns true if a string is full of spaces.
 void print_info();		// Prints the license and other info.
 
-vector<string> &split(string &, vector<string> &);	// Functions to split strings.
-vector<string> split(string &);				// Functions to split strings.
-
-
 int main(int argc, char **argv) 
-{ 
-	if (argc == 1) 
-	{ 
-		program = &cin;
-		print_info();
-	}
+{
+	if (argc == 1) { program = &cin; print_info(); }
 	else program = new std::ifstream(argv[1]);
 	parse_program();
 }
 
-Token get_next_token()
+Token get_next_token()						// The lexer.
 {
-	Token next = peek_next_token();
-	if (!tokens.empty()) tokens.pop();
-	return next;
-}
-
-Token peek_next_token()						// The lexer.
-{
-	if (tokens.empty() && program->eof()) return{ "", {END} };
-	if (!tokens.empty()) return tokens.front();
-	string line;
-	do {
-		if (program == &std::cin) cout << (*identify)["__prompt__"]->to_string();
-		getline(*program, line);			// Get the entire next line.
+	string lexeme;
+	if (program->eof()) return{ "", {END} };
+	if (read_left_expr) 
+	{
+		getline(*program, lexeme, '=');			// The stream will move past the '=' though ...
+		program->seekg(-1L, ios::cur);			// ... so we need to get it one character back.
+		read_left_expr = false;
+	}
+	else if (read_right_expr)
+	{
+		getline(*program, lexeme);
 		line_num++;
-		remove_comment(line);
-		trim(line);					// Finally trim the string to get the usable lexeme.
-	} while (all_spaces(line));
-
-	vector<string> parts = split(line);			// We'll split the line by spaces.
-
-	for (auto &lexeme : parts) {
-		if (lexeme != "") {	
-			//cout << "Pushing: " << lexeme << endl;
-			if	(lexeme == "--quit--")	tokens.push(Token{lexeme, {QUIT}});		// The quit token, so quit the program.
-			else if (lexeme == "delete")	tokens.push(Token{lexeme, {DELETE}});		// The delete token.
-			else if (lexeme == "delete_elems") tokens.push(Token{lexeme, {DELETE_ELEMS}});	// The delete elems token.
-			else if (lexeme == "declare")	tokens.push(Token{ lexeme, { DECLARE } });
-
-			else if	(lexeme == "set" || lexeme == "string" || lexeme == "int" ||		// If it's a data_type token.
-				 lexeme == "char" || lexeme == "tuple" || lexeme == "map" ||
-		       		 lexeme == "logical" || lexeme == "auto")
-				tokens.push(Token{ lexeme, {TYPE}});
-
-			else if (lexeme == "=")		tokens.push(Token{ lexeme, {EQUAL_SIGN}});
-			else if (lexeme == "-->")	tokens.push(Token{ lexeme, {MAPPING_SYMBOL}});
-			else if (lexeme == ":")		tokens.push(Token{ lexeme, {COLON}});
-			else if (lexeme == "input")	tokens.push(Token{ lexeme, {INPUT}});
-			else if (lexeme == "print")	tokens.push(Token{ lexeme, {PRINT}});
-			else if (lexeme == "{")		tokens.push(Token{ lexeme, {L_BRACE}});
-			else if (lexeme == "}")		tokens.push(Token{ lexeme, {R_BRACE}});
-			else if (lexeme == "while")	tokens.push(Token{ lexeme, {WHILE}});
-			else if (lexeme == "if")	tokens.push(Token{ lexeme, {IF}});
-			else if (lexeme == "else")	tokens.push(Token{ lexeme, {ELSE}});
-			else if (lexeme == "endw")	tokens.push(Token{ lexeme, {END_WHILE}});
-			else if (lexeme == "endif")	tokens.push(Token{ lexeme, {END_IF}});
-			else if (identifier(lexeme))	tokens.push(Token{ lexeme, {IDENTIFIER}});   
-			else				tokens.push(Token{ lexeme, { EXPR } });
+		remove_comment(lexeme);
+		read_right_expr = false;
+	}
+	else if (read_mapdom_expr)
+	{
+		int start = program->tellg();
+		getline(*program, lexeme);			// Read the whole thing first;
+		int end = lexeme.find("-->");			// Find the "-->" operator.
+		lexeme = lexeme.substr(start, end - start);	// Get the line before "-->".
+		program->seekg(end - 1, ios::beg);		// Get the stream to before "-->".
+		read_mapdom_expr = false;			// Hopefull this should be good.
+	}
+	else
+	{
+		lexeme = "";
+		char c; program->get(c);
+		if (c == '#')
+		{
+			string dummy;
+			getline(*program, dummy);
+			line_num++;
+			return get_next_token();
 		}
-	}	
-	return tokens.front();
+		while (isspace(c))
+		{
+			if (c == '\n') line_num++;
+			program->get(c);
+		}
+		while (!isspace(c) && !program->eof())
+		{
+			lexeme += c;
+			program->get(c);
+		}
+	}
+	trim(lexeme);
+	if (all_spaces(lexeme)) { return get_next_token(); }
+	if	(lexeme == "--quit--") 	return{lexeme, {QUIT}};			// The quit token, so quit the program.
+	else if (lexeme == "delete")	return{ lexeme, { DELETE } };		// The delete token.
+	else if (lexeme == "delete_elems") return{ lexeme, { DELETE_ELEMS } };	// The delete elems token.
+	else if (lexeme == "declare")	return{ lexeme, { DECLARE } };
+	else if	(lexeme == "set" || lexeme == "string" || lexeme == "int" ||	// If it's a data_type token.
+		 lexeme == "char" || lexeme == "tuple" || lexeme == "map" ||
+	       	 lexeme == "logical" || lexeme == "auto")
+		 return{ lexeme, { TYPE } };
+	else if (lexeme == "=")		return{ lexeme, { EQUAL_SIGN } };
+	else if (lexeme == "-->")	return{ lexeme, { MAPPING_SYMBOL } };
+	else if (lexeme == "let")	return{ lexeme, { LET } };
+	else if (lexeme == ":")		return{ lexeme, { COLON } };
+	else if (lexeme == "input")	return{ lexeme, { INPUT } };
+	else if (lexeme == "print")	return{ lexeme, { PRINT } };
+	else if (lexeme == "{")		return{ lexeme, { L_BRACE } };
+	else if (lexeme == "}")		return{ lexeme, { R_BRACE } };
+	else if (lexeme == "while")	return{ lexeme, { WHILE } };
+	else if (lexeme == "if")	return{ lexeme, { IF } };
+	else if (lexeme == "else")	return{ lexeme, { ELSE } };
+	else if (identifier(lexeme))	return{ lexeme, { IDENTIFIER } };
+	else				return{ lexeme, { EXPR } };
 }
 
 void parse_program()
 {
-	do {
-		parse_statement();
-	} while (current_token.types[0] != END);
+	current_token = get_next_token();
+	while (current_token.types[0] != END) parse_statement();
 }
 
 void parse_statement()
 {
-	current_token = get_next_token();
 	if (current_token.types[0] == QUIT || current_token.types[0] == END) {cout << "\n"; exit(0); }				// Exit.
 	else if (current_token.types[0] == DELETE) parse_delete();
 	else if (current_token.types[0] == DELETE_ELEMS) parse_delete();
@@ -130,28 +136,39 @@ void parse_statement()
 	else if (current_token.types[0] == WHILE) parse_while();
 	else if (current_token.types[0] == IF) parse_if();
 	else if (current_token.types[0] == PRINT) parse_print();
-	else parse_assignment();
+	else if (current_token.types[0] == LET) parse_assignment();
+	current_token = get_next_token();
 }
 
 void parse_assignment()
 {
-	Token &update = current_token;
-
+	read_left_expr = true;
+		
+	Token update = get_next_token();
+	
 	Token eq_sign = get_next_token();
 
 	if (eq_sign.types[0] != EQUAL_SIGN) raise_error("Missing operator \"=\".");
 
+	read_right_expr = true;
+
 	Token expression = get_next_token();
 
 	ExpressionTree expr(expression.lexeme, ROOT);
+	
+	Elem * new_value = expr.evaluate();
+	 
+	delete (*identify)[update.lexeme];
 
-	(*identify)[update.lexeme] = expr.evaluate();
+	(*identify)[update.lexeme] = new_value;
 }
 
 void parse_print()
 {
+	read_right_expr = true;
 	Token print = get_next_token();
-	ExpressionTree expr(print.lexeme, ROOT);
+
+	ExpressionTree expr(print.lexeme);	// We do not want to preserve literals if they're only needed for printing. So no ROOT.
 	Elem * to_be_printed = expr.evaluate();
 
 	cout << to_be_printed->to_string();
@@ -160,6 +177,7 @@ void parse_print()
 
 void parse_delete()		// Parse a delete command.
 {
+	read_right_expr = true;
 	Token delete_this = get_next_token();
 	if (delete_this.types[0] == IDENTIFIER && (*identify)[delete_this.lexeme] != nullptr)	// If it's an identifier ...
 		delete (*identify)[delete_this.lexeme];						// ... then delete the object it maps to.
@@ -167,6 +185,7 @@ void parse_delete()		// Parse a delete command.
 
 void parse_delete_elems()	// Parse a delete_elems command.
 {
+	read_right_expr = true;
 	Token delete_elemsof_this = get_next_token();
 	if (delete_elemsof_this.types[0] == IDENTIFIER && (*identify)[delete_elemsof_this.lexeme] != nullptr)
 	{
@@ -196,9 +215,11 @@ void parse_declaration()	// Parse a declaration.
 		Token colon = get_next_token();
 		if (colon.types[0] != COLON) raise_error("A map identifier must be followed by a \":\".");
 
-		Token domain = get_next_token();
+		read_mapdom_expr = true; Token domain = get_next_token();
+
 		Token mapsymb = get_next_token();
-		Token codomain = get_next_token();
+
+		read_right_expr = true;	Token codomain = get_next_token();
 
 		Elem * map_domain = nullptr, *map_codomain = nullptr;	// Actual pointers that will be used in the map's constructor.
 
@@ -241,7 +262,6 @@ void parse_declaration()	// Parse a declaration.
 	else if (data_type.lexeme == "char") (*identify)[new_identifier.lexeme] = new Char();
 	else if (data_type.lexeme == "string") (*identify)[new_identifier.lexeme] = new String();
 	else if (data_type.lexeme == "logical") (*identify)[new_identifier.lexeme] = new Logical();
-
 }
 
 void parse_initialization()
@@ -261,6 +281,8 @@ void parse_initialization()
 
 		if (equal_sign.types[0] != EQUAL_SIGN) raise_error("Missing operator \"=\".");
 
+		read_right_expr = true;
+
 		Token value = get_next_token();			// The value to be assigned to the identifier.
 
 		ExpressionTree value_expr(value.lexeme, ROOT);
@@ -277,6 +299,7 @@ void parse_initialization()
 
 		if (equal_sign.types[0] != EQUAL_SIGN) raise_error("Missing operator \"=\".");
 
+		read_right_expr = true;
 		Token value = get_next_token();			// The value to be assigned to the identifier.
 		
 		ExpressionTree value_expr(value.lexeme, ROOT);
@@ -292,8 +315,10 @@ void parse_initialization()
 		Token colon = get_next_token();
 		if (colon.types[0] != COLON) raise_error("A map identifier must be followed by a \":\".");
 
+		read_mapdom_expr = true;
 		Token domain = get_next_token();
 		Token mapsymb = get_next_token();
+		read_right_expr = true;
 		Token codomain = get_next_token();
 
 		Elem * map_domain = nullptr, *map_codomain = nullptr;	// Actual pointers that will be used in the map's constructor.
@@ -338,7 +363,8 @@ void parse_initialization()
 		Token equal_sign = get_next_token();
 		
 		if (equal_sign.types[0] != EQUAL_SIGN) raise_error("Missing operator \"=\".");
-		
+
+		read_right_expr = true;
 		Token int_expression = get_next_token();
 
 		ExpressionTree int_expr(int_expression.lexeme, ROOT);
@@ -355,6 +381,7 @@ void parse_initialization()
 
 		if (equal_sign.types[0] != EQUAL_SIGN) raise_error("Missing operator \"=\".");
 
+		read_right_expr = true;
 		Token char_expression = get_next_token();
 
 		ExpressionTree char_expr(char_expression.lexeme, ROOT);
@@ -371,6 +398,7 @@ void parse_initialization()
 
 		if (equal_sign.types[0] != EQUAL_SIGN) raise_error("Missing operator \"=\".");
 
+		read_right_expr = true;
 		Token str_expression = get_next_token();
 
 		ExpressionTree str_expr(str_expression.lexeme, ROOT);
@@ -389,6 +417,7 @@ void parse_initialization()
 
 		Token logic_expression = get_next_token();
 
+		read_right_expr = true;
 		ExpressionTree logic_expr(logic_expression.lexeme, ROOT);
 
 		Elem * val = logic_expr.evaluate();
@@ -403,6 +432,7 @@ void parse_initialization()
 
 		if (equal_sign.types[0] != EQUAL_SIGN) raise_error("Missing operator \"=\".");
 
+		read_right_expr = true;
 		Token tuple_expression = get_next_token();
 
 		ExpressionTree tuple_expr(tuple_expression.lexeme, ROOT);
@@ -423,17 +453,19 @@ void parse_initialization()
 
 void parse_while()
 {
+	read_right_expr = true;
+
 	Token condition = get_next_token();
 
 	if (condition.types[0] != EXPR) raise_error("Expected an expression.");
 
 	Token starting_brace = get_next_token();
-
+	
 	if (starting_brace.types[0] != L_BRACE) raise_error("Missing '{'.");
 
-	int loop_from = program->tellg();		// We will restart the stream of tokens from this point.
+	std::streampos loop_from = program->tellg();		// We will restart the stream of tokens from this point.
 	int restore_line = line_num;
-	
+
 	ExpressionTree * logical_condition = new ExpressionTree(condition.lexeme, ROOT);
 	Elem * do_or_not = logical_condition->evaluate();
 
@@ -444,16 +476,13 @@ void parse_while()
 		if (logical_condition != nullptr) delete logical_condition;	// We have no use for the old parse tree of the condition ...
 		if (do_or_not != nullptr) delete do_or_not;			// ... or this value, because the identifiers may have changed.
 
-		while (peek_next_token().types[0] != R_BRACE)			// As long as you don't see the end of the while loop ...
-		{
+		current_token = get_next_token();
+
+		while (current_token.types[0] != R_BRACE)			// As long as you don't see the end of the while loop ...
 			parse_statement();					// ... keep parsing statements.
-		}
-		Token r_brace = get_next_token();				// Should be an R_BRACE.
-		if (r_brace.types[0] != R_BRACE) raise_error("Expected ending brace");
 
 		program->seekg(loop_from, ios::beg);				// Go back to the beginning of statements when you're done.
 		line_num = restore_line;
-
 		logical_condition = new ExpressionTree(condition.lexeme, ROOT);	// Re-parse the condition ...
 		do_or_not = logical_condition->evaluate();			// ... and re-evaluate it.
 
@@ -463,89 +492,113 @@ void parse_while()
 	delete logical_condition;	// Finally once you're done with the loop ... 
 	delete do_or_not;		// ... you can delete these objects.
 	
-	int level = 0;			// Now we're literally going to keep reading and tossing tokens out ...
-	Token end_while;		// .. until we get the endw we're looking for Let's see if the next thing we get is an end_while.
+	bool toss_tokens = true;	// Now we're literally going to keep tossing out tokens until we find "}".
+	int level = 0;
 
-	while (true) 
+	while (toss_tokens)
 	{
-		end_while = get_next_token();
-		//cout << "Seeing (and possibly throwing): " << end_while.to_string() << endl;
-		if (level == 0 && end_while.types[0] == END) raise_error("While block unterminated at the end of program.");
-		else if (end_while.types[0] == WHILE) level++;
-		else if (end_while.types[0] == END_WHILE) 
-		{
-			if (level == 0) { /*cout << "So we're breaking."*/; break; }
+		Token token = get_next_token();
+		if (token.types[0] == LET) read_left_expr = true;
+		if (token.types[0] == EQUAL_SIGN || token.types[0] == MAPPING_SYMBOL
+		    || token.types[0] == WHILE || token.types[0] == IF) read_right_expr = true;
+		if (token.types[0] == COLON) read_mapdom_expr = true;
+		if (token.types[0] == L_BRACE) level++;
+		if (token.types[0] == R_BRACE) 
+			if (level == 0)
+				toss_tokens = false;
 			else level--;
-		}
 	}
 }
 
 void parse_if()		// Parsing if statements.
 {
+	read_right_expr = true;
+
 	Token condition = get_next_token();
+
 	if (condition.types[0] != EXPR) raise_error("Expected an expression.");
+
 	Token starting_brace = get_next_token();
+
 	if (starting_brace.types[0] != L_BRACE) raise_error("Missing '{'.");
 
 	ExpressionTree * logical_condition = new ExpressionTree(condition.lexeme, ROOT);
+
 	Elem * do_or_not = logical_condition->evaluate();
 
 	if (do_or_not->type != LOGICAL) raise_error("Expected a logical expression.");
 
 	if (((Logical *)do_or_not)->elem)
 	{
-		while (peek_next_token().types[0] != R_BRACE)			// As long as you don't see the end of the if block ...
+		delete logical_condition;	// We have no use for the old parse tree of the condition ...
+		delete do_or_not;			// ... or this value, because the identifiers may have changed.
+
+		current_token = get_next_token();
+
+		while (current_token.types[0] != R_BRACE)			// As long as you don't see the end of the if block ...
 			parse_statement();					// ... keep parsing statements.
 
-		Token r_brace = get_next_token();				// Should be an R_BRACE.
-		if (r_brace.types[0] != R_BRACE) raise_error("Expected ending brace");
 		Token else_ = get_next_token();
+
 		if (else_.types[0] != ELSE) raise_error("else block expected.");
+
+		Token left_brace = get_next_token();
+
+		if (left_brace.types[0] != L_BRACE) raise_error("'{' expected.");
 
 		// But we have to do nothing with the else block. We just need to ignore it.
 
-		int level = 0;		// Now we're literally going to keep reading and tossing tokens out ...
-		Token end_if;		// .. until we get the endif we're looking for. Let's see if the next thing we get is an end_if.
-		while (true)
+		bool toss_tokens = true;	// Now we're literally going to keep tossing out tokens until we find "}".
+		int level = 0;
+
+		while (toss_tokens)
 		{
-			end_if = get_next_token();
-			if (level == 0 && end_if.types[0] == END) raise_error("else block unterminated at the end of program.");
-			if (end_if.types[0] == IF) level++;
-			else if (end_if.types[0] == END_IF)
-			{
-				if (level == 0) break;
+			Token token = get_next_token();
+			if (token.types[0] == LET) read_left_expr = true;
+			if (token.types[0] == EQUAL_SIGN || token.types[0] == MAPPING_SYMBOL
+				|| token.types[0] == WHILE || token.types[0] == IF) read_right_expr = true;
+			if (token.types[0] == COLON) read_mapdom_expr = true;
+			if (token.types[0] == L_BRACE) level++;
+			if (token.types[0] == R_BRACE)
+				if (level == 0)
+					toss_tokens = false;
 				else level--;
-			}
 		}
 	}
 	else
 	{
-		int level = 0;		// Now we're literally going to keep reading and tossing tokens out ...
-		Token else_;		// .. until we get the else we're looking for. Let's see if the next thing we get is an end_if.
-		while (true)
-		{
-			else_ = get_next_token();
-			if (level == 0 && else_.types[0] == END) raise_error("if block unterminated at the end of program.");
-			if (else_.types[0] == IF) level++;
-			else if (else_.types[0] == ELSE)
-			{
-				if (level == 0) break;
-				else level--;
-			}
-		}
-		Token l_brace = get_next_token();
-		if (l_brace.types[0] != L_BRACE) raise_error("'{' expected.");	
-			
-		while (peek_next_token().types[0] != R_BRACE)			// As long as you don't see the end of the else block ...
-			parse_statement();					// ... keep parsing statements.
+		delete logical_condition;	// Finally once you're done with the loop ... 
+		delete do_or_not;
+		
+		bool toss_tokens = true;	// Now we're literally going to keep tossing out tokens until we find "}".
+		int level = 0;
 
-		Token r_brace = get_next_token();				// Should be an R_BRACE.
-		if (r_brace.types[0] != R_BRACE) raise_error("Expected ending brace");
-		Token endif = get_next_token();
-		if (endif.types[0] != END_IF) raise_error("\"endif\" expected.");
+		while (toss_tokens)
+		{
+			Token token = get_next_token();
+
+			if (token.types[0] == LET) read_left_expr = true;
+			if (token.types[0] == EQUAL_SIGN || token.types[0] == MAPPING_SYMBOL
+				|| token.types[0] == WHILE || token.types[0] == IF) read_right_expr = true;
+			if (token.types[0] == COLON) read_mapdom_expr = true;
+			if (token.types[0] == L_BRACE) level++;
+			if (token.types[0] == R_BRACE)
+				if (level == 0)
+					toss_tokens = false;
+				else level--;
+		}
+		Token else_ = get_next_token();
+
+		if (else_.types[0] != ELSE) raise_error("else block expected.");
+
+		Token l_brace = get_next_token();
+		if (l_brace.types[0] != L_BRACE) raise_error("'{' expected.");
+
+		current_token = get_next_token();
+			
+		while (current_token.types[0] != R_BRACE)			// As long as you don't see the end of the else block ...
+			parse_statement();					// ... keep parsing statements.
 	}
-	delete logical_condition;	// Finally once you're done with the loop ... 
-	delete do_or_not;
 }
 
 void trim(string &str)
@@ -558,44 +611,11 @@ void trim(string &str)
 	str = str.substr(start, end - start + 1);
 }
 
-vector<string> &split(string &x, vector<string> &elements) 
+bool identifier(string &str)
 {
-	int level = 0, start = 0;
-	bool in_string = false;
-	for (int i = start; i < x.size(); i++)
-	{
-		if (isspace(x[i]) && level == 0)		// If we find a space that delimits an elements representation ...
-		{
-			elements.push_back(x.substr(start, i - start));	// Push it to the vector of representations
-			start = i + 1;					// The next element's representation will usually start from i + 1.
-		}
-		if (((x[i] == '`' && !in_string) || x[i] == '{' || x[i] == '(' || x[i] == '[')
-			&& (i == 0 || x[i - 1] != '\\')) {
-			level++;
-			if (x[i] == '`' && !in_string) in_string = true;
-		}
-		else if (((x[i] == '`' && in_string) || x[i] == '}' || x[i] == ')' || x[i] == ']')
-			&& (i == 0 || x[i - 1] != '\\')) {
-			level--;
-			if (x[i] == '`' && in_string) in_string = false;
-		}
-	}
-	elements.push_back(x.substr(start, x.size() - start));
-	return elements;
-}
-
-vector<string> split(string &s) 
-{
-	vector<string> elems;
-	split(s, elems);
-	return elems;
-}
-
-bool identifier(string &s)
-{
-	if (s[0] == '_' || isalpha(s[0])) {
-		for (int i = 1; i < s.size(); i++)
-			if (!isalnum(s[i]) && s[i] != '_')
+	if (str[0] == '_' || isalpha(str[0])) {
+		for (int i = 1; i < str.size(); i++)
+			if (!isalnum(str[i]) && str[i] != '_')
 				return false;
 		return true;
 	}
@@ -608,30 +628,9 @@ void raise_error(const char * message)
 	exit(0);
 }
 
-void remove_comment(string &x)
+bool all_spaces(string& str)
 {
-	if (all_spaces(x)) return;
-	int level = 0, i;
-	bool in_string = false;
-	for (i = 0; i < x.size(); i++)
-	{
-		if ((x[i] == '`' && !in_string) && (i == 0 || x[i - 1] != '\\')) {
-			level++;
-			if (x[i] == '`' && !in_string) in_string = true;
-		}
-		else if ((x[i] == '`' && in_string) && (i == 0 || x[i - 1] != '\\')) {
-			level--;
-			if (x[i] == '`' && in_string) in_string = false;
-		}
-		else if (x[i] == '#' && level == 0)		
-			break;
-	}
-	x = x.substr(0, i);
-}
-
-bool all_spaces(string& x)
-{
-	for (auto& c : x)
+	for (auto& c : str)
 		if (!isspace(c))
 			return false;
 	return true;
@@ -644,3 +643,29 @@ void print_info()
 	cout << "For more info, visit https://github.com/TusharRakheja/Autolang." << endl << endl;
 	cout << "To change the prompt, use the env. variable \"__prompt__\"." << endl << endl;	
 }
+
+void remove_comment(string &str)
+{
+	int level = 0, i = 0, comment_found_at = 0;
+	bool in_string = false, comment_found = false;
+	for (i = 0; i < str.size(); i++)
+	{
+		if (((str[i] == '`' && !in_string) || str[i] == '{' || str[i] == '(' || str[i] == '[')
+			&& (i == 0 || str[i - 1] != '\\')) {
+			level++;
+			if (str[i] == '`' && !in_string) in_string = true;
+		}
+		else if (((str[i] == '`' && in_string) || str[i] == '}' || str[i] == ')' || str[i] == ']')
+			&& (i == 0 || str[i - 1] != '\\')) {
+			level--;
+			if (str[i] == '`' && in_string) in_string = false;
+		}
+		else if (str[i] == '#' && level == 0)		// It's a tuple if a comma exists at level 0.
+		{
+			comment_found = true;
+			comment_found_at = i;
+			break;
+		}
+	}
+	if (comment_found) str = str.substr(0, comment_found_at);
+} 

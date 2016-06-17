@@ -9,7 +9,7 @@ public:
 	int elem;						// Only going to implement the bare-minimum methods.
 	Int() : Elem(INT) { elem = 0; }				// Default constructor.
 	Int(int x) : Elem(INT) { elem = x; }			// Parameterized constructor.
-	Int(string x) : Elem(INT) { elem = atoi(x.c_str()); }	// Construct an int object using a string representation of it.
+	Int(string x) : Elem(INT) { elem = std::stoi(x); }	// Construct an int object using a string representation of it.
 	Elem* deep_copy() { return new Int(elem); }		// Return the address of a new Int object constructed with the value of this.
 	bool operator==(Elem &x)
 	{
