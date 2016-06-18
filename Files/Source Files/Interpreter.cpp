@@ -8,6 +8,7 @@ using std::cin;
 using std::endl;
 using std::istream;
 using std::ios;
+using std::getline;
 
 unordered_map<string, Elem *> * program_vars::identify = new unordered_map<string, Elem *> { { "__prompt__", new String(">>> ") } };	
 // Identifiers mapped to their objects.
@@ -42,8 +43,8 @@ void print_info();		// Prints the license and other info.
 
 int main(int argc, char **argv) 
 {
-	/*if (argc == 1) { program = &cin; print_info(); }
-	else*/ program = new std::ifstream("sample.al");
+	if (argc == 1) { program = &cin; print_info(); }
+	else program = new std::ifstream(argv[1]);
 	parse_program();
 }
 
@@ -77,17 +78,16 @@ Token get_next_token()						// The lexer.
 	{
 		lexeme = "";
 		char c; program->get(c);
-		if (c == '#')
-		{
-			string dummy;
-			getline(*program, dummy);
-			line_num++;
-			return get_next_token();
-		}
 		while (isspace(c))
 		{
 			if (c == '\n') 	line_num++;
 			program->get(c);
+		}
+		if (c == '#')
+		{
+			//cout << "Musta come in here." << endl;
+			while (c != '\n' && !program->eof()) program->get(c);
+			return get_next_token();
 		}
 		while (!isspace(c) && !program->eof())
 		{
