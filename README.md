@@ -1,61 +1,86 @@
-# An experimental language.
+# Autolang 
+[![Build Status](https://travis-ci.org/TusharRakheja/Autolang.svg?branch=master)](https://travis-ci.org/TusharRakheja/Autolang)
 
-This semester, I'm learning about programming languages and automata theory. In order to gain a better understanding of language design, I decided to make *Autolang*.
+**Autolang** is a procedural, interpreted programming language for math lovers.
 
-#### Version 1
+It supports **primitive** data types (_int_, _char_, and _logical_), **containers** (*sets*, *tuples*, and *maps*), and a *derived* data type, *strings*. 
 
-Version 1 of Autolang is a small, relatively uninteresting language that lets you describe *Deterministic Finite Automata* (DFA), and run queries on them.
+### Building
 
-For instance, an automaton *M* in *Autolang* can be described with the following syntax
+**Dependencies**
 
-```perl
-automaton_desc (M) {
-	
-	sigma = { '1', '2' }
-	
-	states = { state("Label1"), state("Label2") }
+ - `gcc` 4.8 or later
+ - GNU `make`
 
-	delta : states x sigma --> states { 
-
-		("Label1", '1') --> "Label2"	
-		
-		("Label1", '2') --> "Label1"
-
-		("Label2", '1') --> "Label2"
-
-		("Label2", '2') --> "Label2"
-	}
-
-	accepting = { states["Label2"] }
-
-	M = (sigma, states, states["Label2"], delta, accepting)
-}
+Clone (or alternatively download) the repo.
+```
+$ git clone https://github.com/TusharRakheja/Autolang
+```
+Then navigate into the directory and run make.
+```
+$ cd Autolang
+$ make
+$ make clean
 ```
 
-Queries have the following syntax
+### Usage
 
-```perl
->> M.accepts("1212")
+Autolang can be used either with a file, or interactively. The filename argument is optional.
 
->> M.accepts("2222")
+
+`$ auto filename.al`
+
+### Examples
+
+The real joy of Autolang is its very math-oriented syntax. Here are some cool examples you can try. 
+
+##### 1.
+```python
+>>> set A = {1, 2, 3} x {'A', 'B'}      # Cartesian Product
+>>> print A
+{(1, 'A'), (1, 'B'), (2, 'A'), (2, 'B'), (3, 'A'), (3, 'B')} 
 ```
 
-The result of interpreting this code will be 
-
-```perl
->> 1
-
->> 0
+##### 2. 
+```python
+>>> print {(1, 'B')} c A                # Is this set a subset of A?
+True
 ```
 
-where 1 represents True, and 0 represents False. 
+##### 3.
+```python
+>>> print (2 + 10 * 2) == (2 * 10 + 2)  # Beware, no operator precedence!
+False
+```
 
-Comments are preceded by a '#', and can span a single line (though they're not supported as of this commit).
+##### 4.
+```python
+>>> string first = "Tushar"
+>>> string last = "Rakheja"
+>>> tuple entry = (first, last)         # Identifiers can be used as elements.
+>>> print entry
+("Tushar", "Rakheja")
+```
 
-V1 was really an experiment, I just wanted to get my feet wet with syntax analysis and interpretation. I'll put up a Makefile soon, but all files pertaining to it are in the *Files* directory, should be easy to compile the interpreter.
+##### 5.
+```python
+>>> if (True V False)                   # Will quit the shell.
+{ quit }
+```
 
-#### Version 2 (wip)
+To see an example of how the while loop (the only looping construct in the language, right now) and some other things in the language work, check `Examples/example6.al` out. A technical guide is coming soon.
 
-Autolang V2 will be a major departure from V1, moving towards more conventional syntax, and will be decently powerful and definitely Turing complete. It will allow low-level, 'first-order' programs to be written in it.
+##### Future Plans/Ideas
 
-*Files_V2/Grammar_V2.bnf* is a draft grammar for V2. It covers nearly all of the features, and reading it will give you a good insight into the language's future plans (also helps to work on the implementation better).
+ * [ ] Lexical scoping.
+ 
+ * [ ] Automatic memory management.
+ 
+ * [ ] Abstract Maps/Lambda Expressions (Mapping criteria instead of fixed mappings, eg x --> x + 2)
+
+ * [ ] Abstract Sets (Membership criteria instead of fixed members). Probably can be simulated via Abstract Maps.
+ 
+
+##### License
+
+Copyright (c) 2016 Tushar Rakheja (The MIT License)
