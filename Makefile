@@ -4,7 +4,6 @@
 
 SOURCE = Files_V2/Source\ Files/
 HEADER = Files_V2/Header\ Files/
-CXX = g++
 FLAGS = -std=c++14 -w
 OBJS = Interpreter.o Auto.o ExpressionTree.o Logical.o Map.o Set.o Tuple.o
 
