@@ -2,7 +2,7 @@
 
 **Autolang** is a procedural, interpreted programming language.
 
-It supports **primitive** data types (_int_, _char_, and _logical_), **containers** (*sets*, *tuples*, and *maps*), and a derived data type, *strings*. 
+It supports primitive data types (`int`, `char`, and `logical`), containers (`sets`, `tuples`, and `maps`), and `strings`.
 
 ### Building
 
@@ -25,7 +25,6 @@ $ make clean
 ### Usage
 
 Autolang can be used either with a file, or interactively. The filename argument is optional.
-
 
 `$ auto filename.al`
 
@@ -72,6 +71,8 @@ To see an example of how the while loop (the only looping construct in the langu
 ### Future Plans/Ideas
 
  * [ ] Lexical scoping.
+ 
+ * [ ] Casting.
  
  * [ ] Automatic memory management.
  
