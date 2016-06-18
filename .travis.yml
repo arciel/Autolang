@@ -14,4 +14,4 @@ addons:
 
 install: export CXX="g++-5" CC="gcc-5"
 
-script: make
+script: make CXX=g++-5

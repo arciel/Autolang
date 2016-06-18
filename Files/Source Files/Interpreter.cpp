@@ -54,8 +54,11 @@ Token get_next_token()						// The lexer.
 	if (program->eof()) return{ "", {END} };
 	if (read_left_expr) 
 	{
-		getline(*program, lexeme, '=');			// The stream will move past the '=' though ...
-		program->seekg(-1L, ios::cur);			// ... so we need to get it one character back.
+		getline(*program, lexeme, '=');			// Read the whole thing first;
+		if (program == &cin) 
+			program->unget();
+		else
+			program->seekg(-1L*(int)sizeof(char), ios::cur);	
 		read_left_expr = false;
 	}
 	else if (read_right_expr)
@@ -67,30 +70,65 @@ Token get_next_token()						// The lexer.
 	}
 	else if (read_mapdom_expr)
 	{
-		int start = program->tellg();
-		getline(*program, lexeme);			// Read the whole thing first;
-		int end = lexeme.find("-->");			// Find the "-->" operator.
-		lexeme = lexeme.substr(start, end - start);	// Get the line before "-->".
-		program->seekg(end - 1, ios::beg);		// Get the stream to before "-->".
-		read_mapdom_expr = false;			// Hopefull this should be good.
+		lexeme = "";
+		char a, b, c;
+		program->get(a);
+		while (isspace(a)) 
+		{
+			if (a == '\n') 	line_num++;
+			program->get(a);
+		}
+		while (true)
+		{
+			if (a == '-')
+			{
+				program->get(b); program->get(c);
+				if (b == '-' && c == '>') 
+				{
+					if (program == &cin) 
+					{
+						program->unget();
+						program->unget();
+						program->unget();
+						break;
+					}
+					else 
+					{
+						program->seekg(-3L * (int)sizeof(char), ios::cur);
+						break;
+					}
+				}
+				else 
+				{
+					if (program == &cin) { program->unget(); program->unget(); }
+					else program->seekg(-2L * (int)sizeof(char), ios::cur);
+				}
+			}
+			else 
+			{
+				lexeme += a;
+				program->get(a);
+			}
+		}
+		read_mapdom_expr = false;
 	}
 	else
 	{
 		lexeme = "";
-		char c; program->get(c);
-		while (isspace(c))
+		char c; 
+		program->get(c);
+		while (isspace(c)) 
 		{
 			if (c == '\n') 	line_num++;
 			program->get(c);
 		}
 		if (c == '#')
 		{
-			//cout << "Musta come in here." << endl;
 			while (c != '\n' && !program->eof()) program->get(c);
 			return get_next_token();
 		}
 		while (!isspace(c) && !program->eof())
-		{
+		{	
 			lexeme += c;
 			program->get(c);
 		}
@@ -150,7 +188,7 @@ void parse_assignment()
 	read_left_expr = true;
 		
 	Token update = get_next_token();
-	
+
 	Token eq_sign = get_next_token();
 
 	if (eq_sign.types[0] != EQUAL_SIGN) raise_error("Missing operator \"=\".");
