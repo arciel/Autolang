@@ -75,6 +75,8 @@ To see an example of how the while loop (the only looping construct in the langu
  * [ ] Casting.
  
  * [ ] Automatic memory management.
+
+ * [ ] Support for graphics, modularity etc.
  
  * [ ] Abstract Maps/Lambda Expressions (Mapping criteria instead of fixed mappings, eg x --> x + 2)
 
