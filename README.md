@@ -1,9 +1,8 @@
-# Autolang 
-[![Build Status](https://travis-ci.org/TusharRakheja/Autolang.svg?branch=master)](https://travis-ci.org/TusharRakheja/Autolang)
+# Autolang [![Build Status](https://travis-ci.org/TusharRakheja/Autolang.svg?branch=master)](https://travis-ci.org/TusharRakheja/Autolang)
 
-**Autolang** is a procedural, interpreted programming language for math lovers.
+**Autolang** is a procedural, interpreted programming language.
 
-It supports **primitive** data types (_int_, _char_, and _logical_), **containers** (*sets*, *tuples*, and *maps*), and a *derived* data type, *strings*. 
+It supports **primitive** data types (_int_, _char_, and _logical_), **containers** (*sets*, *tuples*, and *maps*), and a derived data type, *strings*. 
 
 ### Building
 
@@ -70,7 +69,7 @@ False
 
 To see an example of how the while loop (the only looping construct in the language, right now) and some other things in the language work, check `Examples/example6.al` out. A technical guide is coming soon.
 
-##### Future Plans/Ideas
+### Future Plans/Ideas
 
  * [ ] Lexical scoping.
  
@@ -81,6 +80,6 @@ To see an example of how the while loop (the only looping construct in the langu
  * [ ] Abstract Sets (Membership criteria instead of fixed members). Probably can be simulated via Abstract Maps.
  
 
-##### License
+### License
 
 Copyright (c) 2016 Tushar Rakheja (The MIT License)
