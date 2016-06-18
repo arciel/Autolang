@@ -15,7 +15,7 @@ Clone (or alternatively download) the repo.
 ```
 $ git clone https://github.com/TusharRakheja/Autolang
 ```
-Then navigate into the directory and run make.
+Then navigate into the directory and open the Makefile. Set `CXX=g++`. Depending on your version of `gcc`, you may also need to edit the `-std` flag. Once done, run make.
 ```
 $ cd Autolang
 $ make
