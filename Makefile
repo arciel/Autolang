@@ -5,7 +5,7 @@
 CXX = g++
 SOURCE = Files/Source\ Files/
 HEADER = Files/Header\ Files/
-FLAGS = -std=c++14 -w
+FLAGS = -std=c++1y -w
 OBJS = Interpreter.o Auto.o ExpressionTree.o Logical.o Map.o Set.o Tuple.o
 
 # TARGETS

@@ -1,7 +1,6 @@
 #include "../Header Files/ExpressionTree.h"
 #include <iostream>
 #include <fstream>
-#include <queue>
 
 using std::cout;
 using std::cin;
@@ -9,6 +8,7 @@ using std::endl;
 using std::istream;
 using std::ios;
 using std::getline;
+using std::ifstream;
 
 unordered_map<string, Elem *> * program_vars::identify = new unordered_map<string, Elem *> { { "__prompt__", new String(">>> ") } };	
 // Identifiers mapped to their objects.
@@ -16,7 +16,7 @@ unordered_map<string, Elem *> * program_vars::identify = new unordered_map<strin
 using program_vars::identify;
 
 Token current_token;		// The current token we're looking at. 
-istream * program;		// Stream of text input for the interpreter.
+istream * program = new ifstream("example6.al"); 
 int line_num = 1;		// Line number that we're looking at right now.
 bool read_right_expr = false;	// Notes whether or not you're reading an expression on the right side of an '=' sign.
 bool read_left_expr = false;	// Notes whether or not you're reading an expression on the right side of an '=' sign.
@@ -43,8 +43,6 @@ void print_info();		// Prints the license and other info.
 
 int main(int argc, char **argv) 
 {
-	if (argc == 1) { program = &cin; print_info(); }
-	else program = new std::ifstream(argv[1]);
 	parse_program();
 }
 
@@ -63,7 +61,7 @@ Token get_next_token()						// The lexer.
 	}
 	else if (read_right_expr)
 	{
-		getline(*program, lexeme);
+		getline(*program, lexeme, '\n');
 		line_num++;
 		remove_comment(lexeme);
 		read_right_expr = false;
@@ -160,10 +158,9 @@ Token get_next_token()						// The lexer.
 
 void parse_program()
 {
-	if (program == &std::cin) cout << (*identify)["__prompt__"]->to_string();
 	current_token = get_next_token();
-	while (current_token.types[0] != END) 
-	{
+	while (current_token.types[0] != END)
+	{	
 		parse_statement();
 	}
 }
@@ -542,7 +539,7 @@ void parse_while()
 	{
 		Token token = get_next_token();
 		if (token.types[0] == LET) read_left_expr = true;
-		if (token.types[0] == EQUAL_SIGN || token.types[0] == MAPPING_SYMBOL
+		if (token.types[0] == EQUAL_SIGN || token.types[0] == MAPPING_SYMBOL || token.types[0] == PRINT
 		    || token.types[0] == WHILE || token.types[0] == IF) read_right_expr = true;
 		if (token.types[0] == COLON) read_mapdom_expr = true;
 		if (token.types[0] == L_BRACE) level++;
@@ -598,7 +595,7 @@ void parse_if()		// Parsing if statements.
 		{
 			Token token = get_next_token();
 			if (token.types[0] == LET) read_left_expr = true;
-			if (token.types[0] == EQUAL_SIGN || token.types[0] == MAPPING_SYMBOL
+			if (token.types[0] == EQUAL_SIGN || token.types[0] == MAPPING_SYMBOL || token.types[0] == PRINT
 				|| token.types[0] == WHILE || token.types[0] == IF) read_right_expr = true;
 			if (token.types[0] == COLON) read_mapdom_expr = true;
 			if (token.types[0] == L_BRACE) level++;
@@ -621,7 +618,7 @@ void parse_if()		// Parsing if statements.
 			Token token = get_next_token();
 
 			if (token.types[0] == LET) read_left_expr = true;
-			if (token.types[0] == EQUAL_SIGN || token.types[0] == MAPPING_SYMBOL
+			if (token.types[0] == EQUAL_SIGN || token.types[0] == MAPPING_SYMBOL || token.types[0] == PRINT
 				|| token.types[0] == WHILE || token.types[0] == IF) read_right_expr = true;
 			if (token.types[0] == COLON) read_mapdom_expr = true;
 			if (token.types[0] == L_BRACE) level++;

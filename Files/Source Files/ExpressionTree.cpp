@@ -736,8 +736,9 @@ Token ExpressionTree::get_next_token()				// The limited lexical analyzer to par
 	skip_whitespace();					// Skip whitespace, of course.
 
 	if (current_index >= expr.size())			// If the current_index is now beyond the expr's length ...
+	{
 		return{ "", {END} };				// ... return a token initializer list with a blank lexeme, and type END.
-
+	}
 	else if (expr[current_index] == '|')			// Cardinality op.
 	{
 		current_index++;
@@ -1071,15 +1072,16 @@ Token ExpressionTree::get_next_token()				// The limited lexical analyzer to par
 
 ExpressionTree::ExpressionTree(string &expr)
 {
+	current_index = 0;
 	this->expr = expr;
-	Token t1 = get_next_token();
+	Token t1 = this->get_next_token();
 	if (t1.types[0] == END)					// End of recursion.
 	{
 		node = nullptr;
 		return;
 	}
 
-	Token t2 = get_next_token();
+	Token t2 = this->get_next_token();
 
 	if (t2.types[0] == OP)					// If we have <expr> <op> <expr>
 	{
