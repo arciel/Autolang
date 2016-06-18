@@ -2,6 +2,7 @@
 
 # MACROS
 
+CXX = g++
 SOURCE = Files/Source\ Files/
 HEADER = Files/Header\ Files/
 FLAGS = -std=c++14 -w
