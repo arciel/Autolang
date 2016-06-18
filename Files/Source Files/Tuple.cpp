@@ -33,15 +33,15 @@ Tuple::Tuple(string &x) : Elem(TUPLE)			// Construct a set using a string repres
 				elements.push_back(x.substr(start, j - start));	// Push it to the vector of representations
 			break;
 		}
-		if (((x[i] == '`' && !in_string) || x[i] == '{' || x[i] == '(' || x[i] == '[')
+		if (((x[i] == '"' && !in_string) || x[i] == '{' || x[i] == '(' || x[i] == '[')
 			&& (i == 0 || x[i - 1] != '\\')) {
 			level++;
-			if (x[i] == '`' && !in_string) in_string = true;
+			if (x[i] == '"' && !in_string) in_string = true;
 		}
-		else if (((x[i] == '`' && in_string) || x[i] == '}' || x[i] == ')' || x[i] == ']')
+		else if (((x[i] == '"' && in_string) || x[i] == '}' || x[i] == ')' || x[i] == ']')
 			&& (i == 0 || x[i - 1] != '\\')) {
 			level--;
-			if (x[i] == '`' && in_string) in_string = false;
+			if (x[i] == '"' && in_string) in_string = false;
 		}
 		else if (x[i] == ',' && level == 0)		// If we find a comma that delimits an elements representation ...
 		{
@@ -64,7 +64,7 @@ Tuple::Tuple(string &x) : Elem(TUPLE)			// Construct a set using a string repres
 			this->elems->push_back(new Int(rep));
 		else if (rep[0] == '\'')
 			this->elems->push_back(new Char(rep));
-		else if (rep[0] == '`')
+		else if (rep[0] == '"')
 			this->elems->push_back(new String(rep, 0));
 		else if (rep == "True" || rep == "False")
 			this->elems->push_back(new Logical(rep));

@@ -34,9 +34,18 @@ public:
 		string rep = "";
 		for (int i = 0; i < elem.size(); i++)
 		{
-			if (!(elem[i] == '\\')) rep += elem[i];
+			if (!(elem[i] == '\\')) rep += elem[i];		 
+			else 
+			{
+				if (elem[i+1] == 't') { rep += '\t'; i++; }
+				else if (elem[i + 1] == 'n') { rep += '\n'; i++; }
+				else if (elem[i + 1] == 'b') { rep += '\b'; i++; }
+				else if (elem[i + 1] == '"') { rep += '"'; i++; }
+				else if (elem[i + 1] == '{' || elem[i + 1] == '(' || elem[i + 1] == '[') rep += elem[++i];
+				else if (elem[i + 1] == '}' || elem[i + 1] == ')' || elem[i + 1] == ']') rep += elem[++i];
+			}
 		}
-		return rep + "";
+		return rep;
 	}
 
 	~String() {  }						// Destructor - Delete the elem object.

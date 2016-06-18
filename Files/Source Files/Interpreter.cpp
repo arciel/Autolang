@@ -655,15 +655,15 @@ void remove_comment(string &str)
 	bool in_string = false, comment_found = false;
 	for (i = 0; i < str.size(); i++)
 	{
-		if (((str[i] == '`' && !in_string) || str[i] == '{' || str[i] == '(' || str[i] == '[')
+		if (((str[i] == '"' && !in_string) || str[i] == '{' || str[i] == '(' || str[i] == '[')
 			&& (i == 0 || str[i - 1] != '\\')) {
 			level++;
-			if (str[i] == '`' && !in_string) in_string = true;
+			if (str[i] == '"' && !in_string) in_string = true;
 		}
-		else if (((str[i] == '`' && in_string) || str[i] == '}' || str[i] == ')' || str[i] == ']')
+		else if (((str[i] == '"' && in_string) || str[i] == '}' || str[i] == ')' || str[i] == ']')
 			&& (i == 0 || str[i - 1] != '\\')) {
 			level--;
-			if (str[i] == '`' && in_string) in_string = false;
+			if (str[i] == '"' && in_string) in_string = false;
 		}
 		else if (str[i] == '#' && level == 0)		// It's a tuple if a comma exists at level 0.
 		{
